@@ -24,4 +24,5 @@
 
 ## 当前记录
 
+- [我是如何做出的：Knowledge Choice Feed](how-i-built-knowledge-choice-feed.html)
 - [2026-07-08 首轮产品定义与结构收敛](2026-07-08-首轮产品定义与结构收敛.md)

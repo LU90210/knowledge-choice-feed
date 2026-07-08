@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我是如何做出的：Knowledge Choice Feed</title>
+  <style>
+    :root {
+      --paper: #f4ecd8;
+      --paper-soft: #fbf7ed;
+      --ink: #2d2922;
+      --muted: #7f7566;
+      --green: #146b54;
+      --gold: #c28b32;
+      --line: #dfd3ba;
+      --card: rgba(255, 252, 244, 0.84);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(244, 236, 216, 0.9), rgba(244, 236, 216, 0.96)),
+        repeating-linear-gradient(0deg, rgba(20, 107, 84, 0.035), rgba(20, 107, 84, 0.035) 1px, transparent 1px, transparent 4px);
+      font-family: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+      line-height: 1.75;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(20, 107, 84, 0.35);
+    }
+
+    .page {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 86vh;
+      display: grid;
+      align-content: center;
+      text-align: center;
+      padding: 92px 0 72px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 0.28em;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--green);
+      font-size: clamp(58px, 10vw, 132px);
+      line-height: 0.96;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 18px;
+      color: var(--green);
+      font-size: clamp(24px, 4vw, 42px);
+      font-weight: 800;
+    }
+
+    .diamond {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin: 34px auto 28px;
+      color: var(--green);
+    }
+
+    .diamond::before,
+    .diamond::after {
+      content: "";
+      width: 72px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .intro {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      color: #746a5c;
+      font-size: 21px;
+    }
+
+    .part-card {
+      margin: 0 auto 92px;
+      padding: clamp(32px, 6vw, 64px);
+      background: var(--card);
+      border: 1px solid rgba(194, 139, 50, 0.22);
+      border-radius: 18px;
+      box-shadow: 0 24px 70px rgba(59, 42, 15, 0.08);
+      text-align: center;
+    }
+
+    .part-label {
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+    }
+
+    .part-card h2 {
+      margin: 12px 0 12px;
+      color: var(--green);
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .part-card p {
+      margin: 0 auto;
+      width: min(700px, 100%);
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .section {
+      margin: 0 0 86px;
+    }
+
+    .section-number {
+      color: var(--gold);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+    }
+
+    .section h2 {
+      margin: 8px 0 28px;
+      color: var(--green);
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 20px;
+      padding: 28px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .step:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .step-index {
+      color: var(--green);
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 8px;
+      color: var(--gold);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .prompt {
+      margin: 0 0 10px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .prompt span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .did {
+      margin: 0;
+      color: #5f574c;
+      font-size: 18px;
+    }
+
+    .did strong {
+      color: var(--green);
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin: 30px 0 0;
+    }
+
+    .principle {
+      background: rgba(255, 252, 244, 0.76);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .principle h3 {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .principle p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      margin: 38px 0 96px;
+    }
+
+    .links a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(255, 252, 244, 0.7);
+      font-weight: 800;
+    }
+
+    footer {
+      padding: 30px 0 70px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 15px;
+    }
+
+    @media (max-width: 700px) {
+      .hero {
+        min-height: auto;
+        padding-top: 64px;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .principles {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">一次真实的产品构建全记录</div>
+      <h1>Knowledge<br>Choice Feed</h1>
+      <div class="subtitle">判断力训练版</div>
+      <div class="diamond">◆</div>
+      <p class="intro">
+        我用大白话描述了一个“刷着玩但能长认知”的产品想法：把高密度问答、经验和争论，改造成先选择、后揭示的知识题卡。下面是这段构建过程的记录：每一步保留我的原话指令，并用一两句话说明它做了什么。
+      </p>
+    </section>
+
+    <section class="part-card">
+      <div class="part-label">第一部分</div>
+      <h2>从一个“刷着玩”的想法，到产品主线</h2>
+      <p>先把粗糙想法从“知乎蒸馏器”里拎出来，定成一个内容服务平台：不是用户来问，而是平台用好问题吸引用户先做判断。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-number">01</div>
+      <h2>构思与定位</h2>
+
+      <article class="step">
+        <div class="step-index">1</div>
+        <div>
+          <div class="tag">灵感</div>
+          <p class="prompt"><span>我的指令</span> 我现在想做一个刷着玩的应用，核心是蒸馏知乎或其他平台知识，然后以一种问答选项的方式，让用户去选择答案，每个答案下面附上有关这个选项理由的高价值信息。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把想法先定成“选择优先的知识判断 feed”，不是传统问答，也不是纯摘要。核心动作变成：看到问题、先选择、再看理由和分布。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">2</div>
+        <div>
+          <div class="tag">边界</div>
+          <p class="prompt"><span>我的指令</span> 不用管合规问题。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把分析范围限定在产品价值、用户机制、内容质量和商业风险，不展开版权、抓取授权和平台合规。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">3</div>
+        <div>
+          <div class="tag">方法</div>
+          <p class="prompt"><span>我的指令</span> 你用 skill 去调研下。你用 skill 了吗？</p>
+          <p class="did">→ <strong>它做了什么：</strong>使用产品调研和需求分析框架，把产品从“知识摘要”重新抽象成“判断力训练平台”，并补出竞品、MVP、增长和风险。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">02</div>
+      <h2>把用户分层和参与机制想清楚</h2>
+
+      <article class="step">
+        <div class="step-index">4</div>
+        <div>
+          <div class="tag">用户分层</div>
+          <p class="prompt"><span>我的指令</span> 加一个功能点，用户分层，发布高价值回答后成为高价值用户，选项以条形展示选项分布，再细分每个选项普通用户、高价值用户、超高价值用户占比。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把“多数人怎么选”和“高手怎么选”拆成两层反馈：整体分布用于印证，高价值用户分布用于制造认知差距。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">5</div>
+        <div>
+          <div class="tag">评论动力</div>
+          <p class="prompt"><span>我的指令</span> 如果用户选完已经有标准答案了，为什么还要评论？评论完对标准答案的影响几何？有评论动力吗？</p>
+          <p class="did">→ <strong>它做了什么：</strong>把用户评论从“争夺标准答案”里剥离出来，定位为公开表达、补案例、展示判断和沉淀个人主页资产。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">6</div>
+        <div>
+          <div class="tag">采纳机制</div>
+          <p class="prompt"><span>我的指令</span> 你还需要被采纳？那火了需要多少人力？采纳人的品味凭什么决定大家的想法？</p>
+          <p class="did">→ <strong>它做了什么：</strong>放弃人工采纳制，改成基于长期行为信号的高价值用户机制：保存、有用反馈、低质率和领域稳定性。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">7</div>
+        <div>
+          <div class="tag">评论分层</div>
+          <p class="prompt"><span>我的指令</span> 用户选择了一个选项后，评论前需要选择：我和答案思考维度一致，我来进行补充；或者虽然我选了这个答案，但我和答案思考维度完全不同。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把评论入口压缩成一次轻选择：同维度补充或同选项不同思考维度。这样平台不用事后猜用户意图。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">8</div>
+        <div>
+          <div class="tag">减负</div>
+          <p class="prompt"><span>我的指令</span> 这个理由标签就不用了，这样的话用户互动链路太长了体验不好。</p>
+          <p class="did">→ <strong>它做了什么：</strong>删掉额外理由标签，只保留评论维度选择和短评论，避免把表达链路拉得太长。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">03</div>
+      <h2>保存、主页、关注流</h2>
+
+      <article class="step">
+        <div class="step-index">9</div>
+        <div>
+          <div class="tag">判断资产</div>
+          <p class="prompt"><span>我的指令</span> 选完选项，可以进行左滑保存至个人画像，别人打开主页会看到这个人的选择记录。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把“选择”分成两种状态：默认只进聚合分布，左滑才进入个人主页，成为可被别人理解的判断资产。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">10</div>
+        <div>
+          <div class="tag">主页内容</div>
+          <p class="prompt"><span>我的指令</span> 选择记录里面不止选择，评论了的话也展示出来；上面是选择后的话题热度/用户话题选择时间顺序排序，还有用户评论时间顺序以及评论被点赞的排序。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把主页拆成选择记录和评论记录：选择默认按话题热度，评论默认按综合活性，并支持时间和点赞排序。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">11</div>
+        <div>
+          <div class="tag">副功能</div>
+          <p class="prompt"><span>我的指令</span> 用户平时可以发帖，我们设置几个主题，用户写完内容进行简单识别默认进入一个主题，也可以选择不进入主题。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把主题讨论定位成副功能：不抢主 feed，但帮助用户补充主页画像，也为平台沉淀非题卡内容资产。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">12</div>
+        <div>
+          <div class="tag">关注流</div>
+          <p class="prompt"><span>我的指令</span> 用户可以关注该问题，后续系统向 feed 流推荐该问题或许有更新的爆款回答。另一个副页面看关注的人或关注的问题最新回答发帖，加一个特别关注功能。</p>
+          <p class="did">→ <strong>它做了什么：</strong>形成双页面结构：主页面探索好问题，副页面看关注的人、问题和特别关注人的最新动态。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">13</div>
+        <div>
+          <div class="tag">交互修正</div>
+          <p class="prompt"><span>我的指令</span> 别“更多”了，就直接有私密保存按钮和分享按钮。右滑就是退出该问题和选项的功能，不要右滑跳过。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把交互收敛成直接按钮：私密保存、分享、关注问题；左滑进入个人画像，右滑退出详情回到信息流。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="part-card">
+      <div class="part-label">第二部分</div>
+      <h2>从需求分析，到商业诊断和优先级重排</h2>
+      <p>当功能开始变多，真正的问题变成：这台机器最先要验证什么？最后结论是，不是先做复杂社区，而是先做题卡质量 SOP。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-number">04</div>
+      <h2>需求分析与调研沉淀</h2>
+
+      <article class="step">
+        <div class="step-index">14</div>
+        <div>
+          <div class="tag">需求分析</div>
+          <p class="prompt"><span>我的指令</span> 你给我做下需求分析，有需要的地方也用 skill 调研下。下面是需求分析的模板。</p>
+          <p class="did">→ <strong>它做了什么：</strong>按定位、功能、分析、保障条件四部分写出需求分析，再把产品调研里多出的竞品、题型、增长、商业化放到附录。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">15</div>
+        <div>
+          <div class="tag">未决风险</div>
+          <p class="prompt"><span>我的指令</span> 最后面加上一个遗待解决的风险：怎么把用户评论和标准答案融合起来。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把“评论如何反哺平台答案”放进未解决风险，而不是急着在 MVP 里融合。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">16</div>
+        <div>
+          <div class="tag">用户画像</div>
+          <p class="prompt"><span>我的指令</span> 核心用户画像还有高等学历，因为他们也有中等学历人群的部分需求，而且他们也希望自己的选项被别人看到，营造自己人设。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把核心用户从“中等学历中流阶层”扩展为两类：中等学历打拼者和高等学历表达型用户。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">17</div>
+        <div>
+          <div class="tag">公开规则</div>
+          <p class="prompt"><span>我的指令</span> 选择选项不是立即可见啊，你得左滑才加入个人主页才可见。而且评论区排序你得综合这些维度，保持评论区活性。</p>
+          <p class="did">→ <strong>它做了什么：</strong>明确公开规则：选项选择只进入聚合分布，不自动公开；评论区默认综合活性排序，避免只剩旧高赞。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">05</div>
+      <h2>用 dbskill 做商业模式诊断</h2>
+
+      <article class="step">
+        <div class="step-index">18</div>
+        <div>
+          <div class="tag">安装工具</div>
+          <p class="prompt"><span>我的指令</span> 安装 dontbesilent2025/dbskill，然后诊断我这个项目。</p>
+          <p class="did">→ <strong>它做了什么：</strong>安装 dbs skill 套件，并用商业模式体检框架诊断项目：这还不是赚钱机器，而是验证用户是否愿意交出判断数据的机器。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">19</div>
+        <div>
+          <div class="tag">优先级重排</div>
+          <p class="prompt"><span>我的指令</span> 第一个功能应该是：这个项目最难规模化的不是开发，是题卡质量。平台答案如果像 AI 套话，产品立刻死亡。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把“题卡质量 SOP 与编辑标准”提升为第一功能，写入入选标准、排除标准、选项标准、高价值解释标准和 AI 套话识别。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="part-card">
+      <div class="part-label">第三部分</div>
+      <h2>仓库、竞品分析和构建记录</h2>
+      <p>产品不只是文档，还需要持续沉淀：主需求文档、竞品分析、构建记录各放在自己的地方，方便之后继续 build。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-number">06</div>
+      <h2>发布到 GitHub</h2>
+
+      <article class="step">
+        <div class="step-index">20</div>
+        <div>
+          <div class="tag">建仓库</div>
+          <p class="prompt"><span>我的指令</span> 把这个需求分析文档，在 Documents 单独创建个文件夹，然后放 GitHub 中。GitHub 有没有不公开，但是可以通过链接访问的方式？</p>
+          <p class="did">→ <strong>它做了什么：</strong>在本地创建 <code>knowledge-choice-feed</code> 仓库，推到 GitHub private 仓库，并说明普通 GitHub 仓库没有“知道链接就能看”的半公开模式。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">21</div>
+        <div>
+          <div class="tag">提交</div>
+          <p class="prompt"><span>我的指令</span> 登陆了，就 private 吧。</p>
+          <p class="did">→ <strong>它做了什么：</strong>创建并推送 private 仓库：<code>LU90210/knowledge-choice-feed</code>。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">07</div>
+      <h2>竞品分析单独成册</h2>
+
+      <article class="step">
+        <div class="step-index">22</div>
+        <div>
+          <div class="tag">竞品补充</div>
+          <p class="prompt"><span>我的指令</span> 这个可以加到竞品分析：ELYS 的衰落。</p>
+          <p class="did">→ <strong>它做了什么：</strong>把 ELYS 作为 AI 伪互动社区的反面案例，提炼出“AI 可以回复，不能替代真实他者确认”。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">23</div>
+        <div>
+          <div class="tag">结构调整</div>
+          <p class="prompt"><span>我的指令</span> 另起一个文件夹专门放竞品分析。</p>
+          <p class="did">→ <strong>它做了什么：</strong>新建 <code>竞品分析/</code> 目录，放入竞品总览和 ELYS 案例，主需求文档只保留简短入口。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">08</div>
+      <h2>把这次构建记录下来</h2>
+
+      <article class="step">
+        <div class="step-index">24</div>
+        <div>
+          <div class="tag">复盘</div>
+          <p class="prompt"><span>我的指令</span> 我现在正在 build 这个产品，我想记录我怎么 build 的，你能不能仿照这个，也记录下。</p>
+          <p class="did">→ <strong>它做了什么：</strong>先做了 Markdown 构建记录，把产品从想法到结构收敛的过程记下来。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">25</div>
+        <div>
+          <div class="tag">样式对齐</div>
+          <p class="prompt"><span>我的指令</span> 你可以直接看啊，在这里。</p>
+          <p class="did">→ <strong>它做了什么：</strong>看到参考页是“我是如何做出的”叙事页，于是补出这个 HTML：按阶段、编号、我的原话指令和它做了什么来记录全过程。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">09</div>
+      <h2>如果你也想用大白话 build 一个产品</h2>
+      <div class="principles">
+        <div class="principle">
+          <h3>1. 先讲想要什么</h3>
+          <p>不用一开始讲功能列表。先用最朴素的话说出你想解决的体验。</p>
+        </div>
+        <div class="principle">
+          <h3>2. 岔路口让它给选项</h3>
+          <p>当方向不清楚时，让 agent 摆出几条路和代价，你负责拍板。</p>
+        </div>
+        <div class="principle">
+          <h3>3. 不满意就直接指出</h3>
+          <p>评论链路太长、采纳机制不成立、右滑交互不对，这些都要直接打断。</p>
+        </div>
+        <div class="principle">
+          <h3>4. 先找第一性风险</h3>
+          <p>这个项目最大的风险不是开发，而是题卡质量。先抓这个，功能才不会乱长。</p>
+        </div>
+        <div class="principle">
+          <h3>5. 每类材料单独沉淀</h3>
+          <p>需求分析、竞品分析、构建记录分开，后续迭代时不会混成一坨。</p>
+        </div>
+        <div class="principle">
+          <h3>6. 让文档能继续生长</h3>
+          <p>现在不是最终稿，而是产品记忆。每次关键决策都应该留下“为什么”。</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="links">
+      <a href="../knowledge-choice-feed-requirements-analysis.md">需求分析</a>
+      <a href="../竞品分析/README.md">竞品分析</a>
+      <a href="2026-07-08-首轮产品定义与结构收敛.md">构建记录 Markdown</a>
+      <a href="https://github.com/LU90210/knowledge-choice-feed">GitHub 仓库</a>
+    </div>
+  </main>
+
+  <footer>
+    与 Codex 一起用自然语言构建 Knowledge Choice Feed
+  </footer>
+</body>
+</html>
