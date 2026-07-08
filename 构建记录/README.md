@@ -22,6 +22,10 @@
 5. 尚未解决的问题
 6. 下一步
 
+## 维护规则
+
+每次大改之后，必须更新 `how-i-built-knowledge-choice-feed.html`（补上这次的指令和它做了什么），并推送到 GitHub。构建记录不是一次性复盘，而是随产品一起生长的记忆。
+
 ## 当前记录
 
 - [我是如何做出的：Knowledge Choice Feed](https://lu90210.github.io/knowledge-choice-feed/%E6%9E%84%E5%BB%BA%E8%AE%B0%E5%BD%95/how-i-built-knowledge-choice-feed.html)
