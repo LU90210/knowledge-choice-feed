@@ -213,6 +213,22 @@
       gap: 18px;
       padding: 14px 0;
       border: 0;
+      position: relative;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: 19px;
+      top: 33px;
+      bottom: -33px;
+      width: 3px;
+      background: var(--line-strong);
+      z-index: 0;
+    }
+
+    .step:last-child::before {
+      display: none;
     }
 
     .step-index {
@@ -230,25 +246,6 @@
       font-size: 15px;
       line-height: 1;
       box-shadow: 0 3px 10px -3px rgba(14, 70, 54, 0.6);
-    }
-
-    .step > div:first-child {
-      position: relative;
-      display: flex;
-      justify-content: center;
-    }
-
-    .step > div:first-child::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: -28px;
-      width: 2px;
-      background: var(--line-strong);
-    }
-
-    .step:last-child > div:first-child::before {
-      display: none;
     }
 
     .tag {
@@ -289,17 +286,24 @@
       color: var(--ink-soft);
       font-size: 15.5px;
       line-height: 1.8;
-      display: flex;
-      gap: 10px;
+      display: block;
+      position: relative;
+      padding-left: 26px;
+    }
+
+    .did::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--green);
+      font-weight: 700;
     }
 
     .did strong {
       color: var(--ink);
-    }
-
-    .did::first-letter {
-      color: var(--green);
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .step > div:nth-child(2) {
@@ -452,7 +456,7 @@
         <div>
           <div class="tag">灵感</div>
           <p class="prompt"><span>我的指令</span> 我现在想做一个刷着玩的应用，核心是蒸馏知乎或其他平台知识，然后以一种问答选项的方式，让用户去选择答案，每个答案下面附上有关这个选项理由的高价值信息。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把想法先定成“选择优先的知识判断 feed”，不是传统问答，也不是纯摘要。核心动作变成：看到问题、先选择、再看理由和分布。</p>
+          <p class="did"><strong>它做了什么：</strong>把想法先定成“选择优先的知识判断 feed”，不是传统问答，也不是纯摘要。核心动作变成：看到问题、先选择、再看理由和分布。</p>
         </div>
       </article>
 
@@ -461,7 +465,7 @@
         <div>
           <div class="tag">边界</div>
           <p class="prompt"><span>我的指令</span> 不用管合规问题。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把分析范围限定在产品价值、用户机制、内容质量和商业风险，不展开版权、抓取授权和平台合规。</p>
+          <p class="did"><strong>它做了什么：</strong>把分析范围限定在产品价值、用户机制、内容质量和商业风险，不展开版权、抓取授权和平台合规。</p>
         </div>
       </article>
 
@@ -470,7 +474,7 @@
         <div>
           <div class="tag">方法</div>
           <p class="prompt"><span>我的指令</span> 你用 skill 去调研下。你用 skill 了吗？</p>
-          <p class="did">→ <strong>它做了什么：</strong>使用产品调研和需求分析框架，把产品从“知识摘要”重新抽象成“判断力训练平台”，并补出竞品、MVP、增长和风险。</p>
+          <p class="did"><strong>它做了什么：</strong>使用产品调研和需求分析框架，把产品从“知识摘要”重新抽象成“判断力训练平台”，并补出竞品、MVP、增长和风险。</p>
         </div>
       </article>
     </section>
@@ -484,7 +488,7 @@
         <div>
           <div class="tag">用户分层</div>
           <p class="prompt"><span>我的指令</span> 加一个功能点，用户分层，发布高价值回答后成为高价值用户，选项以条形展示选项分布，再细分每个选项普通用户、高价值用户、超高价值用户占比。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把“多数人怎么选”和“高手怎么选”拆成两层反馈：整体分布用于印证，高价值用户分布用于制造认知差距。</p>
+          <p class="did"><strong>它做了什么：</strong>把“多数人怎么选”和“高手怎么选”拆成两层反馈：整体分布用于印证，高价值用户分布用于制造认知差距。</p>
         </div>
       </article>
 
@@ -493,7 +497,7 @@
         <div>
           <div class="tag">评论动力</div>
           <p class="prompt"><span>我的指令</span> 如果用户选完已经有标准答案了，为什么还要评论？评论完对标准答案的影响几何？有评论动力吗？</p>
-          <p class="did">→ <strong>它做了什么：</strong>把用户评论从“争夺标准答案”里剥离出来，定位为公开表达、补案例、展示判断和沉淀个人主页资产。</p>
+          <p class="did"><strong>它做了什么：</strong>把用户评论从“争夺标准答案”里剥离出来，定位为公开表达、补案例、展示判断和沉淀个人主页资产。</p>
         </div>
       </article>
 
@@ -502,7 +506,7 @@
         <div>
           <div class="tag">采纳机制</div>
           <p class="prompt"><span>我的指令</span> 你还需要被采纳？那火了需要多少人力？采纳人的品味凭什么决定大家的想法？</p>
-          <p class="did">→ <strong>它做了什么：</strong>放弃人工采纳制，改成基于长期行为信号的高价值用户机制：保存、有用反馈、低质率和领域稳定性。</p>
+          <p class="did"><strong>它做了什么：</strong>放弃人工采纳制，改成基于长期行为信号的高价值用户机制：保存、有用反馈、低质率和领域稳定性。</p>
         </div>
       </article>
 
@@ -511,7 +515,7 @@
         <div>
           <div class="tag">评论分层</div>
           <p class="prompt"><span>我的指令</span> 用户选择了一个选项后，评论前需要选择：我和答案思考维度一致，我来进行补充；或者虽然我选了这个答案，但我和答案思考维度完全不同。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把评论入口压缩成一次轻选择：同维度补充或同选项不同思考维度。这样平台不用事后猜用户意图。</p>
+          <p class="did"><strong>它做了什么：</strong>把评论入口压缩成一次轻选择：同维度补充或同选项不同思考维度。这样平台不用事后猜用户意图。</p>
         </div>
       </article>
 
@@ -520,7 +524,7 @@
         <div>
           <div class="tag">减负</div>
           <p class="prompt"><span>我的指令</span> 这个理由标签就不用了，这样的话用户互动链路太长了体验不好。</p>
-          <p class="did">→ <strong>它做了什么：</strong>删掉额外理由标签，只保留评论维度选择和短评论，避免把表达链路拉得太长。</p>
+          <p class="did"><strong>它做了什么：</strong>删掉额外理由标签，只保留评论维度选择和短评论，避免把表达链路拉得太长。</p>
         </div>
       </article>
     </section>
@@ -534,7 +538,7 @@
         <div>
           <div class="tag">判断资产</div>
           <p class="prompt"><span>我的指令</span> 选完选项，可以进行左滑保存至个人画像，别人打开主页会看到这个人的选择记录。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把“选择”分成两种状态：默认只进聚合分布，左滑才进入个人主页，成为可被别人理解的判断资产。</p>
+          <p class="did"><strong>它做了什么：</strong>把“选择”分成两种状态：默认只进聚合分布，左滑才进入个人主页，成为可被别人理解的判断资产。</p>
         </div>
       </article>
 
@@ -543,7 +547,7 @@
         <div>
           <div class="tag">主页内容</div>
           <p class="prompt"><span>我的指令</span> 选择记录里面不止选择，评论了的话也展示出来；上面是选择后的话题热度/用户话题选择时间顺序排序，还有用户评论时间顺序以及评论被点赞的排序。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把主页拆成选择记录和评论记录：选择默认按话题热度，评论默认按综合活性，并支持时间和点赞排序。</p>
+          <p class="did"><strong>它做了什么：</strong>把主页拆成选择记录和评论记录：选择默认按话题热度，评论默认按综合活性，并支持时间和点赞排序。</p>
         </div>
       </article>
 
@@ -552,7 +556,7 @@
         <div>
           <div class="tag">副功能</div>
           <p class="prompt"><span>我的指令</span> 用户平时可以发帖，我们设置几个主题，用户写完内容进行简单识别默认进入一个主题，也可以选择不进入主题。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把主题讨论定位成副功能：不抢主 feed，但帮助用户补充主页画像，也为平台沉淀非题卡内容资产。</p>
+          <p class="did"><strong>它做了什么：</strong>把主题讨论定位成副功能：不抢主 feed，但帮助用户补充主页画像，也为平台沉淀非题卡内容资产。</p>
         </div>
       </article>
 
@@ -561,7 +565,7 @@
         <div>
           <div class="tag">关注流</div>
           <p class="prompt"><span>我的指令</span> 用户可以关注该问题，后续系统向 feed 流推荐该问题或许有更新的爆款回答。另一个副页面看关注的人或关注的问题最新回答发帖，加一个特别关注功能。</p>
-          <p class="did">→ <strong>它做了什么：</strong>形成双页面结构：主页面探索好问题，副页面看关注的人、问题和特别关注人的最新动态。</p>
+          <p class="did"><strong>它做了什么：</strong>形成双页面结构：主页面探索好问题，副页面看关注的人、问题和特别关注人的最新动态。</p>
         </div>
       </article>
 
@@ -570,7 +574,7 @@
         <div>
           <div class="tag">交互修正</div>
           <p class="prompt"><span>我的指令</span> 别“更多”了，就直接有私密保存按钮和分享按钮。右滑就是退出该问题和选项的功能，不要右滑跳过。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把交互收敛成直接按钮：私密保存、分享、关注问题；左滑进入个人画像，右滑退出详情回到信息流。</p>
+          <p class="did"><strong>它做了什么：</strong>把交互收敛成直接按钮：私密保存、分享、关注问题；左滑进入个人画像，右滑退出详情回到信息流。</p>
         </div>
       </article>
     </section>
@@ -590,7 +594,7 @@
         <div>
           <div class="tag">需求分析</div>
           <p class="prompt"><span>我的指令</span> 你给我做下需求分析，有需要的地方也用 skill 调研下。下面是需求分析的模板。</p>
-          <p class="did">→ <strong>它做了什么：</strong>按定位、功能、分析、保障条件四部分写出需求分析，再把产品调研里多出的竞品、题型、增长、商业化放到附录。</p>
+          <p class="did"><strong>它做了什么：</strong>按定位、功能、分析、保障条件四部分写出需求分析，再把产品调研里多出的竞品、题型、增长、商业化放到附录。</p>
         </div>
       </article>
 
@@ -599,7 +603,7 @@
         <div>
           <div class="tag">未决风险</div>
           <p class="prompt"><span>我的指令</span> 最后面加上一个遗待解决的风险：怎么把用户评论和标准答案融合起来。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把“评论如何反哺平台答案”放进未解决风险，而不是急着在 MVP 里融合。</p>
+          <p class="did"><strong>它做了什么：</strong>把“评论如何反哺平台答案”放进未解决风险，而不是急着在 MVP 里融合。</p>
         </div>
       </article>
 
@@ -608,7 +612,7 @@
         <div>
           <div class="tag">用户画像</div>
           <p class="prompt"><span>我的指令</span> 核心用户画像还有高等学历，因为他们也有中等学历人群的部分需求，而且他们也希望自己的选项被别人看到，营造自己人设。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把核心用户从“中等学历中流阶层”扩展为两类：中等学历打拼者和高等学历表达型用户。</p>
+          <p class="did"><strong>它做了什么：</strong>把核心用户从“中等学历中流阶层”扩展为两类：中等学历打拼者和高等学历表达型用户。</p>
         </div>
       </article>
 
@@ -617,7 +621,7 @@
         <div>
           <div class="tag">公开规则</div>
           <p class="prompt"><span>我的指令</span> 选择选项不是立即可见啊，你得左滑才加入个人主页才可见。而且评论区排序你得综合这些维度，保持评论区活性。</p>
-          <p class="did">→ <strong>它做了什么：</strong>明确公开规则：选项选择只进入聚合分布，不自动公开；评论区默认综合活性排序，避免只剩旧高赞。</p>
+          <p class="did"><strong>它做了什么：</strong>明确公开规则：选项选择只进入聚合分布，不自动公开；评论区默认综合活性排序，避免只剩旧高赞。</p>
         </div>
       </article>
     </section>
@@ -631,7 +635,7 @@
         <div>
           <div class="tag">安装工具</div>
           <p class="prompt"><span>我的指令</span> 安装 dontbesilent2025/dbskill，然后诊断我这个项目。</p>
-          <p class="did">→ <strong>它做了什么：</strong>安装 dbs skill 套件，并用商业模式体检框架诊断项目：这还不是赚钱机器，而是验证用户是否愿意交出判断数据的机器。</p>
+          <p class="did"><strong>它做了什么：</strong>安装 dbs skill 套件，并用商业模式体检框架诊断项目：这还不是赚钱机器，而是验证用户是否愿意交出判断数据的机器。</p>
         </div>
       </article>
 
@@ -640,7 +644,7 @@
         <div>
           <div class="tag">优先级重排</div>
           <p class="prompt"><span>我的指令</span> 第一个功能应该是：这个项目最难规模化的不是开发，是题卡质量。平台答案如果像 AI 套话，产品立刻死亡。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把“题卡质量 SOP 与编辑标准”提升为第一功能，写入入选标准、排除标准、选项标准、高价值解释标准和 AI 套话识别。</p>
+          <p class="did"><strong>它做了什么：</strong>把“题卡质量 SOP 与编辑标准”提升为第一功能，写入入选标准、排除标准、选项标准、高价值解释标准和 AI 套话识别。</p>
         </div>
       </article>
     </section>
@@ -660,7 +664,7 @@
         <div>
           <div class="tag">建仓库</div>
           <p class="prompt"><span>我的指令</span> 把这个需求分析文档，在 Documents 单独创建个文件夹，然后放 GitHub 中。GitHub 有没有不公开，但是可以通过链接访问的方式？</p>
-          <p class="did">→ <strong>它做了什么：</strong>在本地创建 <code>knowledge-choice-feed</code> 仓库，推到 GitHub private 仓库，并说明普通 GitHub 仓库没有“知道链接就能看”的半公开模式。</p>
+          <p class="did"><strong>它做了什么：</strong>在本地创建 <code>knowledge-choice-feed</code> 仓库，推到 GitHub private 仓库，并说明普通 GitHub 仓库没有“知道链接就能看”的半公开模式。</p>
         </div>
       </article>
 
@@ -669,7 +673,7 @@
         <div>
           <div class="tag">提交</div>
           <p class="prompt"><span>我的指令</span> 登陆了，就 private 吧。</p>
-          <p class="did">→ <strong>它做了什么：</strong>创建并推送 private 仓库：<code>LU90210/knowledge-choice-feed</code>。</p>
+          <p class="did"><strong>它做了什么：</strong>创建并推送 private 仓库：<code>LU90210/knowledge-choice-feed</code>。</p>
         </div>
       </article>
     </section>
@@ -683,7 +687,7 @@
         <div>
           <div class="tag">竞品补充</div>
           <p class="prompt"><span>我的指令</span> 这个可以加到竞品分析：ELYS 的衰落。</p>
-          <p class="did">→ <strong>它做了什么：</strong>把 ELYS 作为 AI 伪互动社区的反面案例，提炼出“AI 可以回复，不能替代真实他者确认”。</p>
+          <p class="did"><strong>它做了什么：</strong>把 ELYS 作为 AI 伪互动社区的反面案例，提炼出“AI 可以回复，不能替代真实他者确认”。</p>
         </div>
       </article>
 
@@ -692,7 +696,7 @@
         <div>
           <div class="tag">结构调整</div>
           <p class="prompt"><span>我的指令</span> 另起一个文件夹专门放竞品分析。</p>
-          <p class="did">→ <strong>它做了什么：</strong>新建 <code>竞品分析/</code> 目录，放入竞品总览和 ELYS 案例，主需求文档只保留简短入口。</p>
+          <p class="did"><strong>它做了什么：</strong>新建 <code>竞品分析/</code> 目录，放入竞品总览和 ELYS 案例，主需求文档只保留简短入口。</p>
         </div>
       </article>
     </section>
@@ -706,7 +710,7 @@
         <div>
           <div class="tag">复盘</div>
           <p class="prompt"><span>我的指令</span> 我现在正在 build 这个产品，我想记录我怎么 build 的，你能不能仿照这个，也记录下。</p>
-          <p class="did">→ <strong>它做了什么：</strong>先做了 Markdown 构建记录，把产品从想法到结构收敛的过程记下来。</p>
+          <p class="did"><strong>它做了什么：</strong>先做了 Markdown 构建记录，把产品从想法到结构收敛的过程记下来。</p>
         </div>
       </article>
 
@@ -715,7 +719,7 @@
         <div>
           <div class="tag">样式对齐</div>
           <p class="prompt"><span>我的指令</span> 你可以直接看啊，在这里。</p>
-          <p class="did">→ <strong>它做了什么：</strong>看到参考页是“我是如何做出的”叙事页，于是补出这个 HTML：按阶段、编号、我的原话指令和它做了什么来记录全过程。</p>
+          <p class="did"><strong>它做了什么：</strong>看到参考页是“我是如何做出的”叙事页，于是补出这个 HTML：按阶段、编号、我的原话指令和它做了什么来记录全过程。</p>
         </div>
       </article>
     </section>
