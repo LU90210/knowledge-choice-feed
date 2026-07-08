@@ -6,221 +6,366 @@
   <title>我是如何做出的：Knowledge Choice Feed</title>
   <style>
     :root {
-      --paper: #f4ecd8;
-      --paper-soft: #fbf7ed;
-      --ink: #2d2922;
-      --muted: #7f7566;
-      --green: #146b54;
-      --gold: #c28b32;
-      --line: #dfd3ba;
-      --card: rgba(255, 252, 244, 0.84);
+      --paper: #f3ead7;
+      --paper-2: #fbf6ec;
+      --panel: #fcf8ef;
+      --ink: #241c12;
+      --ink-soft: #6b5e47;
+      --ink-faint: #9b8d72;
+      --line: #e4d9c0;
+      --line-strong: #d6c8a9;
+      --green: #1c6b54;
+      --green-deep: #0e4636;
+      --ember: #bd562a;
+      --gold: #bf8a36;
+      --teal: #0e8f86;
+      --display:
+        "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino,
+        Georgia, "Source Han Sans SC", "Source Han Sans CN",
+        "Noto Sans CJK SC", "思源黑体", "PingFang SC", sans-serif;
+      --sans:
+        "Avenir Next", Avenir, "Helvetica Neue", "Source Han Sans SC",
+        "Source Han Sans CN", "Noto Sans CJK SC", "思源黑体", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
       margin: 0;
       color: var(--ink);
-      background:
-        linear-gradient(rgba(244, 236, 216, 0.9), rgba(244, 236, 216, 0.96)),
-        repeating-linear-gradient(0deg, rgba(20, 107, 84, 0.035), rgba(20, 107, 84, 0.035) 1px, transparent 1px, transparent 4px);
-      font-family: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
-      line-height: 1.75;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(120% 90% at 85% -10%, rgba(28, 107, 84, 0.1), transparent 55%),
+        radial-gradient(90% 70% at -10% 110%, rgba(189, 86, 42, 0.08), transparent 55%),
+        repeating-linear-gradient(0deg, rgba(120, 100, 60, 0.035) 0 1px, transparent 1px 5px);
+      font-family: var(--sans);
+      line-height: 1.85;
+      word-break: normal;
+      overflow-wrap: anywhere;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     a {
       color: var(--green);
       text-decoration: none;
-      border-bottom: 1px solid rgba(20, 107, 84, 0.35);
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      z-index: 50;
+      background: linear-gradient(90deg, var(--green), var(--teal), var(--gold));
+      transform: scaleX(0);
+      transform-origin: 0 50%;
     }
 
     .page {
-      width: min(980px, calc(100% - 32px));
+      max-width: 880px;
       margin: 0 auto;
+      padding: 0 26px;
     }
 
     .hero {
-      min-height: 86vh;
-      display: grid;
-      align-content: center;
+      padding: 104px 0 44px;
       text-align: center;
-      padding: 92px 0 72px;
     }
 
     .eyebrow {
-      color: var(--muted);
-      font-size: 14px;
-      letter-spacing: 0.28em;
+      font-family: var(--sans);
+      color: var(--ink-soft);
+      font-size: 13px;
+      letter-spacing: 0.32em;
       font-weight: 700;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      padding-left: 0.32em;
     }
 
     h1 {
       margin: 0;
       color: var(--green);
-      font-size: clamp(58px, 10vw, 132px);
-      line-height: 0.96;
-      font-weight: 800;
-      letter-spacing: 0;
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(56px, 11vw, 110px);
+      line-height: 0.94;
+      letter-spacing: -0.02em;
     }
 
     .subtitle {
-      margin-top: 18px;
-      color: var(--green);
-      font-size: clamp(24px, 4vw, 42px);
-      font-weight: 800;
+      font-family: var(--display);
+      font-weight: 700;
+      color: var(--green-deep);
+      font-size: clamp(22px, 4.4vw, 34px);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
     }
 
     .diamond {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 18px;
-      margin: 34px auto 28px;
-      color: var(--green);
+      gap: 16px;
+      margin: 32px 0 24px;
     }
 
     .diamond::before,
     .diamond::after {
       content: "";
-      width: 72px;
+      width: 60px;
       height: 1px;
-      background: var(--line);
+      background: var(--line-strong);
+    }
+
+    .diamond i {
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      transform: rotate(45deg);
     }
 
     .intro {
       width: min(720px, 100%);
       margin: 0 auto;
-      color: #746a5c;
-      font-size: 21px;
+      font-family: var(--display);
+      color: var(--ink-soft);
+      font-size: clamp(18px, 2.3vw, 22px);
+      line-height: 1.8;
     }
 
     .part-card {
-      margin: 0 auto 92px;
-      padding: clamp(32px, 6vw, 64px);
-      background: var(--card);
-      border: 1px solid rgba(194, 139, 50, 0.22);
+      margin: 76px 0 6px;
+      padding: 34px 24px;
+      background: linear-gradient(180deg, var(--paper-2), transparent);
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line);
       border-radius: 18px;
-      box-shadow: 0 24px 70px rgba(59, 42, 15, 0.08);
       text-align: center;
     }
 
     .part-label {
       color: var(--gold);
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.18em;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      padding-left: 0.3em;
     }
 
     .part-card h2 {
-      margin: 12px 0 12px;
+      margin: 10px 0 0;
       color: var(--green);
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: 1.15;
-      letter-spacing: 0;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(28px, 5.6vw, 44px);
+      line-height: 1.22;
     }
 
     .part-card p {
-      margin: 0 auto;
+      margin: 10px auto 0;
       width: min(700px, 100%);
-      color: var(--muted);
-      font-size: 19px;
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.7;
     }
 
     .section {
-      margin: 0 0 86px;
+      margin: 0 0 8px;
     }
 
     .section-number {
+      display: inline-block;
       color: var(--gold);
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      padding: 3px 12px;
+      margin-top: 52px;
     }
 
     .section h2 {
-      margin: 8px 0 28px;
-      color: var(--green);
-      font-size: clamp(32px, 5vw, 54px);
-      line-height: 1.18;
-      letter-spacing: 0;
+      display: inline-block;
+      margin: 52px 0 8px 16px;
+      color: var(--ink);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(23px, 4vw, 32px);
+      line-height: 1.35;
     }
 
     .step {
       display: grid;
-      grid-template-columns: 76px 1fr;
-      gap: 20px;
-      padding: 28px 0;
-      border-top: 1px solid var(--line);
-    }
-
-    .step:last-child {
-      border-bottom: 1px solid var(--line);
+      grid-template-columns: 46px 1fr;
+      gap: 18px;
+      padding: 14px 0;
+      border: 0;
     }
 
     .step-index {
-      color: var(--green);
-      font-size: 30px;
-      font-weight: 900;
+      position: relative;
+      z-index: 1;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #f4efe2;
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 15px;
       line-height: 1;
+      box-shadow: 0 3px 10px -3px rgba(14, 70, 54, 0.6);
+    }
+
+    .step > div:first-child {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .step > div:first-child::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: -28px;
+      width: 2px;
+      background: var(--line-strong);
+    }
+
+    .step:last-child > div:first-child::before {
+      display: none;
     }
 
     .tag {
       display: inline-block;
-      margin-bottom: 8px;
-      color: var(--gold);
-      font-size: 15px;
-      font-weight: 800;
+      margin-bottom: 13px;
+      color: var(--green-deep);
+      background: rgba(28, 107, 84, 0.1);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
     }
 
     .prompt {
-      margin: 0 0 10px;
-      font-size: 20px;
-      font-weight: 800;
+      margin: 0;
+      font-family: var(--display);
+      font-size: 18.5px;
+      line-height: 1.8;
+      color: var(--ink);
+      padding-left: 16px;
+      border-left: 3px solid var(--green);
+      font-weight: 400;
     }
 
     .prompt span {
-      color: var(--muted);
+      display: block;
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
       font-weight: 700;
+      margin-bottom: 7px;
     }
 
     .did {
-      margin: 0;
-      color: #5f574c;
-      font-size: 18px;
+      margin-top: 15px;
+      color: var(--ink-soft);
+      font-size: 15.5px;
+      line-height: 1.8;
+      display: flex;
+      gap: 10px;
     }
 
     .did strong {
+      color: var(--ink);
+    }
+
+    .did::first-letter {
       color: var(--green);
+      font-weight: 700;
+    }
+
+    .step > div:nth-child(2) {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 20px 16px;
+      box-shadow: 0 6px 22px -16px rgba(40, 30, 12, 0.5);
     }
 
     .principles {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-      margin: 30px 0 0;
+      gap: 14px;
+      margin: 44px 0 8px;
+      background: linear-gradient(180deg, var(--paper-2), var(--panel));
+      border: 1px solid var(--line-strong);
+      border-radius: 20px;
+      padding: 34px 30px 30px;
+      box-shadow: 0 10px 34px -22px rgba(40, 30, 12, 0.5);
+      counter-reset: principle;
     }
 
     .principle {
-      background: rgba(255, 252, 244, 0.76);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 22px;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 14px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .principle::before {
+      counter-increment: principle;
+      content: counter(principle);
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--green);
+      color: #f4efe2;
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 15px;
+      margin-top: 2px;
+    }
+
+    .principle:nth-child(even)::before {
+      background: var(--teal);
     }
 
     .principle h3 {
-      margin: 0 0 8px;
-      color: var(--green);
-      font-size: 22px;
+      margin: 0 0 2px;
+      color: var(--ink);
+      font-size: 16.5px;
+      font-weight: 700;
       letter-spacing: 0;
     }
 
     .principle p {
       margin: 0;
-      color: var(--muted);
-      font-size: 17px;
+      color: var(--ink-soft);
+      font-size: 14.5px;
+      line-height: 1.7;
+      grid-column: 2;
     }
 
     .links {
@@ -235,41 +380,58 @@
       border: 1px solid var(--line);
       border-radius: 999px;
       padding: 10px 16px;
-      background: rgba(255, 252, 244, 0.7);
-      font-weight: 800;
+      background: var(--panel);
+      font-weight: 700;
     }
 
     footer {
-      padding: 30px 0 70px;
-      color: var(--muted);
+      margin: 66px 0 90px;
+      padding: 0;
+      color: var(--ink-faint);
       text-align: center;
-      font-size: 15px;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    footer .mark {
+      font-family: var(--display);
+      font-size: 21px;
+      color: var(--ink);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 10px;
     }
 
     @media (max-width: 700px) {
       .hero {
-        min-height: auto;
-        padding-top: 64px;
+        padding: 60px 0 24px;
       }
 
       .step {
-        grid-template-columns: 1fr;
-        gap: 8px;
+        grid-template-columns: 36px 1fr;
+        gap: 12px;
       }
 
-      .principles {
-        grid-template-columns: 1fr;
+      .step-index {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+
+      .prompt {
+        font-size: 17px;
       }
     }
   </style>
 </head>
 <body>
+  <div id="progress"></div>
   <main class="page">
     <section class="hero">
       <div class="eyebrow">一次真实的产品构建全记录</div>
       <h1>Knowledge<br>Choice Feed</h1>
       <div class="subtitle">判断力训练版</div>
-      <div class="diamond">◆</div>
+      <div class="diamond"><span></span><i></i><span></span></div>
       <p class="intro">
         我用大白话描述了一个“刷着玩但能长认知”的产品想法：把高密度问答、经验和争论，改造成先选择、后揭示的知识题卡。下面是这段构建过程的记录：每一步保留我的原话指令，并用一两句话说明它做了什么。
       </p>
@@ -563,27 +725,27 @@
       <h2>如果你也想用大白话 build 一个产品</h2>
       <div class="principles">
         <div class="principle">
-          <h3>1. 先讲想要什么</h3>
+          <h3>先讲想要什么</h3>
           <p>不用一开始讲功能列表。先用最朴素的话说出你想解决的体验。</p>
         </div>
         <div class="principle">
-          <h3>2. 岔路口让它给选项</h3>
+          <h3>岔路口让它给选项</h3>
           <p>当方向不清楚时，让 agent 摆出几条路和代价，你负责拍板。</p>
         </div>
         <div class="principle">
-          <h3>3. 不满意就直接指出</h3>
+          <h3>不满意就直接指出</h3>
           <p>评论链路太长、采纳机制不成立、右滑交互不对，这些都要直接打断。</p>
         </div>
         <div class="principle">
-          <h3>4. 先找第一性风险</h3>
+          <h3>先找第一性风险</h3>
           <p>这个项目最大的风险不是开发，而是题卡质量。先抓这个，功能才不会乱长。</p>
         </div>
         <div class="principle">
-          <h3>5. 每类材料单独沉淀</h3>
+          <h3>每类材料单独沉淀</h3>
           <p>需求分析、竞品分析、构建记录分开，后续迭代时不会混成一坨。</p>
         </div>
         <div class="principle">
-          <h3>6. 让文档能继续生长</h3>
+          <h3>让文档能继续生长</h3>
           <p>现在不是最终稿，而是产品记忆。每次关键决策都应该留下“为什么”。</p>
         </div>
       </div>
@@ -598,7 +760,19 @@
   </main>
 
   <footer>
-    与 Codex 一起用自然语言构建 Knowledge Choice Feed
+    <span class="mark">Knowledge Choice Feed</span>
+    与 Codex 和 Claude Code 一起用自然语言构建
   </footer>
+  <script>
+    const bar = document.getElementById("progress");
+    function onScroll() {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      bar.style.transform = "scaleX(" + (max > 0 ? h.scrollTop / max : 0) + ")";
+    }
+    document.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+  </script>
 </body>
 </html>
