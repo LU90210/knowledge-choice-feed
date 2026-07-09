@@ -756,7 +756,7 @@
         <div>
           <div class="tag">MVP 启动</div>
           <p class="prompt"><span>我的指令</span> 我现在要做 MVP，数据来源：developer.zhihu.com，知乎 API，你不用管合规商用啥的。先就搞一个类别的，抽出 15-30 题左右。做个简单演示界面，长得像手机端知乎，但 html 形式。</p>
-          <p class="did"><strong>它做了什么：</strong>探明知乎数据开放平台的接口（知乎搜索、热榜，Bearer 鉴权），实测打通后规划了三步：拉数据、蒸馏题卡、做演示页。</p>
+          <p class="did"><strong>它做了什么：</strong>探明知乎数据开放平台的接口（知乎搜索、热榜，Bearer 鉴权 + 秒级时间戳），实测打通；然后在仓库里立起 <code>mvp/</code> 目录：<code>pipeline/fetch_zhihu.sh</code> 负责拉数据，<code>data/</code> 存题卡和 API 原始返回，<code>index.html</code> 是演示页。演示页做成单文件 HTML：题卡 JSON 直接内嵌在页面里，双击即开，不用起服务；结构是 Feed 列表（题卡：领域章、题目、预览、参与数）→ 点进详情选选项 → 同页揭示分布和理由。桌面上看是一个 390px 的手机壳容器，带模拟状态栏。</p>
         </div>
       </article>
 
@@ -765,7 +765,7 @@
         <div>
           <div class="tag">接口边界</div>
           <p class="prompt"><span>我的指令</span> 你只用这个 api 里的知乎搜索或知乎热榜就行，我只要知乎内容。（Access Secret 已私下提供）</p>
-          <p class="did"><strong>它做了什么：</strong>管线锁定两个接口；密钥只走环境变量，不写进任何落盘文件——仓库是公开的。</p>
+          <p class="did"><strong>它做了什么：</strong>管线锁定知乎搜索和热榜两个接口。<code>fetch_zhihu.sh</code> 从环境变量 <code>ZHIHU_ACCESS_SECRET</code> 读密钥，每次调用带 Bearer 头和时间戳，原始返回原样存进 <code>data/raw/</code>；密钥不写进任何落盘文件——仓库是公开的。</p>
         </div>
       </article>
 
@@ -774,7 +774,7 @@
         <div>
           <div class="tag">题材切换</div>
           <p class="prompt"><span>我的指令</span> 算了，你别弄 AI 前沿技术了，你换成买什么车吧，比如奔驰还是宝马，SUV 还是轿车啥的。</p>
-          <p class="did"><strong>它做了什么：</strong>12 个买车子题抓回 120 条真实内容，按六字段 SOP 蒸馏出 20 张题卡，53 条来源全部核对自 API 原始返回。换完题材才发现买车的判断冲突密度远高于 AI 话题：高赞互怼就是题卡的原材料。</p>
+          <p class="did"><strong>它做了什么：</strong>换 12 个买车子题重抓（奔驰 vs 宝马、SUV vs 轿车、油电之争等），120 条真实内容进 <code>data/raw/</code>；按六字段 SOP 手工蒸馏出 <code>data/cards.json</code> 的 20 张题卡——每张有题目、领域、题型和 2-4 个选项，每个选项带成立理由（reason）、忽略变量（blindspot）、选择占比（pct）和普通/高价值/超高价值三层分布（tiers），53 条来源链接全部核对自 API 原始返回，零杜撰。换完题材才发现买车的判断冲突密度远高于 AI 话题：高赞互怼就是题卡的原材料。</p>
         </div>
       </article>
 
@@ -783,7 +783,7 @@
         <div>
           <div class="tag">去知乎化</div>
           <p class="prompt"><span>我的指令</span> 我这个 MVP 不需要展示跟知乎有关的任何东西。主页只需要关注和推荐。多少万人已选，是瞎编的，还是找的知乎的信息？我除了知乎的内容，不需要跟知乎有任何关系。</p>
-          <p class="did"><strong>它做了什么：</strong>承认参与数字是演示合成并在页脚标明；清除全部知乎品牌元素、来源展示和 vote 引用。沉淀成规则：数据源是管线上游，不是产品脸面。</p>
+          <p class="did"><strong>它做了什么：</strong>改的全在 <code>index.html</code> 和它内嵌的数据里：顶部导航从「关注 / 推荐 / 热榜」砍成「关注 / 推荐」加搜索图标，知乎 logo、来源链接、赞同数展示全部删掉，题卡文案里「高赞」「知乎网友」这类措辞也洗掉；参与人数是合成的，页脚直接标明演示数据。内嵌进页面的 JSON 剥掉了 sources 字段，来源只留在仓库的 <code>cards.json</code> 里做溯源。沉淀成规则：数据源是管线上游，不是产品脸面。</p>
         </div>
       </article>
 
@@ -792,7 +792,7 @@
         <div>
           <div class="tag">交互实验</div>
           <p class="prompt"><span>我的指令</span> 你觉得有什么更好的答案展现，或者用户交互方式？我感觉这个太老登了。</p>
-          <p class="did"><strong>它做了什么：</strong>把揭示改成 4 拍分步叙事流：站队数字、你的盲区、对面最强论点、金句收尾，点按推进。</p>
+          <p class="did"><strong>它做了什么：</strong>重写 <code>index.html</code> 的揭示区：选完不再一页摊开，而是 4 拍点按推进的状态机——第一拍站队数字（count-up 动画，配超高价值用户的反差钩子），第二拍你的理由和盲区，第三拍对面最强论点，第四拍金句加完整分布收尾，底部进度点指示走到哪。</p>
         </div>
       </article>
 
@@ -801,7 +801,7 @@
         <div>
           <div class="tag">回滚与分岔</div>
           <p class="prompt"><span>我的指令</span> 现在我要其他的表现形式，类似抖音的界面，可以上下滑，所有内容呈现在一个屏幕中，你另起一个版本。你现在的表现形式其实还不如第一个版本，返回原样。两个版本都保存下来。还有，MVP 阶段不需要保存我选过的内容，保证我每次打开都刷新。</p>
-          <p class="did"><strong>它做了什么：</strong>回滚 4 拍恢复第一版；新增暗色沉浸的上下滑版（一屏一题、滑动切题、同屏揭示）；两版删掉持久化。教训：情绪曲线设计对内容消费成立，对查看反馈不成立——选完想马上看到全貌。</p>
+          <p class="did"><strong>它做了什么：</strong><code>index.html</code> 用 git 恢复到 4 拍之前的形态：单页揭示，分布条 + 整体/按用户分层切换 + 逐选项展开理由。另写 <code>mvp/swipe.html</code>：暗色沉浸，CSS scroll-snap 做一屏一题，上下滑切题；选完同屏出分布行、超高价值反差钩子和理由面板，右侧竖排保存/评论/分享图标，刷完 20 题出结束屏。两版页内互跳。持久化按要求整个删掉：作答只存内存变量，刷新即全新。教训：情绪曲线设计对内容消费成立，对查看反馈不成立——选完想马上看到全貌。</p>
         </div>
       </article>
     </section>
@@ -815,7 +815,7 @@
         <div>
           <div class="tag">交互补齐</div>
           <p class="prompt"><span>我的指令</span> 你这个抖音版，只能展示一个答案啊，我选了 B 只有 B，选完了之后再点 A，至少能看到 A 的答案吧？两版都可以加一个取消选择的选项。包括你先回答一下这个原来如此功能到底是啥意思？</p>
-          <p class="did"><strong>它做了什么：</strong>滑版分布行变成可点的，点哪个选项看哪个的理由；两版都加了「重新选择」。做选择的产品里，看对面的理由是核心闭环的一半，不是增强功能。</p>
+          <p class="did"><strong>它做了什么：</strong><code>swipe.html</code> 的分布行改成可点的 tab：选了 B 之后点 A 那行，下方面板就换成 A 的理由和忽略变量，当前查看项高亮，自己选的那行保留「我选的」标记。两版都加「重新选择」：列表版在分布标题旁一个 ↺ 按钮，滑版放在反差钩子那行，点了抹掉这题的作答、退回选择态。做选择的产品里，看对面的理由是核心闭环的一半，不是增强功能。</p>
         </div>
       </article>
 
@@ -833,7 +833,7 @@
         <div>
           <div class="tag">字段裁决</div>
           <p class="prompt"><span>我的指令</span> 那你就直接别弄什么原来如此了，搞成核心维度：几个词。就行。</p>
-          <p class="did"><strong>它做了什么：</strong>「原来如此」下线，换成「核心维度」——每题 2-4 个名词短语，指出这道题真正在比什么（如：充电便利度 / 年里程 / 补能频次）。从要求用户读完，变成允许用户扫过；词组还能标签化、按维度聚合检索。</p>
+          <p class="did"><strong>它做了什么：</strong><code>cards.json</code> 里 insight 字段整个删掉，换成 dims 数组；列表版揭示区的「原来如此」段落换成「核心维度」词块，滑版理由面板底部同样加词块——每题 2-4 个名词短语，指出这道题真正在比什么（如：充电便利度 / 年里程 / 补能频次）。从要求用户读完，变成允许用户扫过；词组还能标签化、按维度聚合检索。</p>
         </div>
       </article>
 
@@ -843,6 +843,15 @@
           <div class="tag">规矩问责</div>
           <p class="prompt"><span>我的指令</span> 你到底看没看啊，构建记录/README.md？</p>
           <p class="did"><strong>它做了什么：</strong>补课：当日记录改成 README 规定的六段式结构，这份 HTML 补上第 28-37 步，README 当前记录补条目，推送 GitHub。规矩写在仓库里就是给 agent 看的，跳过一次就该被抓。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">38</div>
+        <div>
+          <div class="tag">记录问责</div>
+          <p class="prompt"><span>我的指令</span> 我这次怎么构建的 MVP，你是一点也没写在 html 啊，你 html 改啥了我都不知道。</p>
+          <p class="did"><strong>它做了什么：</strong>第一遍补的第 28-37 步只记了产品判断，没记实现。重写这十步：每一步动了哪个文件、页面结构怎么变、交互机制是什么，现在都在这一页里。构建记录写给要接着 build 的人，只有决策没有改动，等于没记。</p>
         </div>
       </article>
     </section>
