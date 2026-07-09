@@ -190,7 +190,13 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.dist-row { margin-bottom: 11px; }
+.dist-row {
+  margin: 0 0 4px -8px;
+  padding: 5px 8px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dist-row.viewing { background: rgba(255, 255, 255, .07); }
 .dist-top {
   display: flex;
   align-items: baseline;
@@ -226,27 +232,51 @@ body {
   transition: width .7s cubic-bezier(.25,.8,.3,1);
 }
 .dist-row.mine .bar i { background: var(--blue); }
-.hook {
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--fg);
-  margin: 8px 44px 14px 0;
-  padding-top: 12px;
+.hook-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 6px 44px 10px 0;
+  padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, .12);
 }
-.hook b { color: var(--blue); font-weight: 700; }
-.insight {
+.hook-text { flex: 1; font-size: 14px; line-height: 1.55; }
+.hook-text b { color: var(--blue); font-weight: 700; }
+.redo {
+  flex: none;
+  border: 1px solid var(--stroke);
+  background: none;
+  color: var(--fg-2);
+  font-family: inherit;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+/* answer panel (switches by tapped option) */
+.panel {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  margin-right: 44px;
+  scrollbar-width: none;
+}
+.panel::-webkit-scrollbar { display: none; }
+.p-head { display: flex; align-items: baseline; gap: 8px; font-size: 14.5px; font-weight: 700; margin-bottom: 8px; }
+.p-head .k { color: var(--blue); flex: none; }
+.p-tag { flex: none; font-size: 10px; color: #fff; background: var(--blue); border-radius: 8px; padding: 1px 7px; }
+.p-why, .p-blind { font-size: 14px; line-height: 1.65; margin-bottom: 10px; }
+.p-why b { color: var(--blue); font-weight: 600; }
+.p-blind { color: var(--fg-2); }
+.p-blind b { color: #E8A33D; font-weight: 600; }
+.insight {
   background: var(--blue-dim);
   border-left: 2px solid var(--blue);
   border-radius: 0 12px 12px 0;
   padding: 12px 14px;
-  margin-right: 44px;
-  scrollbar-width: none;
+  margin-top: 4px;
 }
-.insight::-webkit-scrollbar { display: none; }
 .insight .tag { font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: 1px; margin-bottom: 6px; }
 .insight p { font-size: 14.5px; line-height: 1.7; }
 
@@ -428,6 +458,21 @@ function choosingHTML(c, i) {
   ${railHTML(c)}`;
 }
 
+function panelHTML(c, viewing, picked) {
+  const v = c.options.find(o => o.key === viewing);
+  return `
+    <div class="p-head">
+      <span class="k">${v.key}</span><span>${esc(v.text)}</span>
+      ${viewing === picked ? '<span class="p-tag">你的选择</span>' : ''}
+    </div>
+    <p class="p-why"><b>为什么有人选它：</b>${esc(v.reason)}</p>
+    <p class="p-blind"><b>它忽略了：</b>${esc(v.blindspot)}</p>
+    <div class="insight">
+      <div class="tag">原来如此</div>
+      <p>${esc(c.insight)}</p>
+    </div>`;
+}
+
 function answeredHTML(c, i, picked) {
   const mine = c.options.find(o => o.key === picked);
   return `
@@ -436,7 +481,7 @@ function answeredHTML(c, i, picked) {
     <div class="qs-title-sm a-in">${esc(c.title)}</div>
     <div class="dist">
       ${c.options.map((o, idx) => `
-        <div class="dist-row a-in ${o.key === picked ? 'mine' : ''}" style="animation-delay:${.08 * idx}s">
+        <div class="dist-row a-in ${o.key === picked ? 'mine' : ''} ${o.key === picked ? 'viewing' : ''}" data-key="${o.key}" style="animation-delay:${.06 * idx}s">
           <div class="dist-top">
             <span class="k">${o.key}</span><span>${esc(o.text)}</span>
             ${o.key === picked ? '<span class="mine-chip">你的选择</span>' : ''}
@@ -445,14 +490,14 @@ function answeredHTML(c, i, picked) {
           <div class="bar"><i data-w="${o.pct}"></i></div>
         </div>`).join('')}
     </div>
-    <div class="hook a-in" style="animation-delay:.45s">${tierHook(mine)}</div>
-    <div class="insight a-in" style="animation-delay:.65s">
-      <div class="tag">原来如此</div>
-      <p>${esc(c.insight)}</p>
+    <div class="hook-row a-in" style="animation-delay:.4s">
+      <span class="hook-text">${tierHook(mine)}</span>
+      <button class="redo">↺ 重选</button>
     </div>
+    <div class="panel a-in" style="animation-delay:.55s">${panelHTML(c, picked, picked)}</div>
     <div class="qs-hint">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 7 4.5l4 4"/></svg>
-      上滑看下一题
+      点其他选项看它的理由 · 上滑看下一题
     </div>
   </div>
   ${railHTML(c)}`;
@@ -469,6 +514,20 @@ function bindSection(sec, c, i) {
         sec.querySelectorAll('.bar i').forEach(el => { el.style.width = el.dataset.w + '%'; });
       }));
     }));
+  // tap a distribution row to read that option's reasoning
+  sec.querySelectorAll('.dist-row').forEach(row =>
+    row.addEventListener('click', () => {
+      sec.querySelectorAll('.dist-row').forEach(r => r.classList.toggle('viewing', r === row));
+      $('.panel', sec).innerHTML = panelHTML(c, row.dataset.key, answers[c.id]);
+    }));
+  const redo = $('.redo', sec);
+  if (redo) redo.addEventListener('click', () => {
+    delete answers[c.id];
+    sec.innerHTML = choosingHTML(c, i);
+    bindSection(sec, c, i);
+    const ec = $('#end-count');
+    if (ec) ec.textContent = Object.keys(answers).length;
+  });
   sec.querySelectorAll('.rail button').forEach(b =>
     b.addEventListener('click', () => toast(b.dataset.t)));
 }

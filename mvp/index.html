@@ -239,6 +239,16 @@ body {
   margin-bottom: 12px;
 }
 .section-label small { font-size: 12px; color: var(--ink-3); font-weight: 400; }
+.redo-btn {
+  border: 1px solid var(--line-2);
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--ink-2);
+  border-radius: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
 
 /* options: choosing state */
 .opt-btn {
@@ -615,7 +625,7 @@ function renderChoosing(c) {
 function renderResult(c, picked, animate) {
   const sec = $('#sec-options');
   sec.innerHTML = `
-    <div class="section-label">选择分布 <small>共 ${fmt(c.stats.chosen)} 人作答</small></div>
+    <div class="section-label">选择分布 <button class="redo-btn" id="btn-redo">↺ 重新选择</button></div>
     <div class="seg" id="seg">
       <button class="on" data-mode="all">整体</button>
       <button data-mode="tiers">按用户分层</button>
@@ -641,6 +651,14 @@ function renderResult(c, picked, animate) {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     sec.querySelectorAll('.opt-res > .bar > i').forEach(i => { i.style.width = i.dataset.w + '%'; });
   }));
+
+  // undo the answer, back to choosing
+  $('#btn-redo').addEventListener('click', () => {
+    delete answers[c.id];
+    $('#reveal-zone').innerHTML = '';
+    renderChoosing(c);
+    screen.scrollTop = 0;
+  });
 
   // tier toggle
   $('#seg', sec).querySelectorAll('button').forEach(b =>
