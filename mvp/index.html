@@ -273,32 +273,85 @@ body {
   margin-top: 1px;
 }
 
-/* options: result state */
-.opt-res {
-  border: 1px solid var(--line-2);
-  border-radius: 10px;
-  padding: 11px 14px 12px;
-  margin-top: 10px;
-  position: relative;
+/* ---------- reveal beats ---------- */
+.beat-sec { background: var(--card); }
+.beat {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 28px 20px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.opt-res:first-of-type { margin-top: 0; }
-.opt-res.mine { border-color: var(--zh-blue); box-shadow: 0 0 0 1px var(--zh-blue) inset; }
-.opt-res .row1 {
+.beat-q {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.beat-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 30px; }
+.beat-kicker {
+  font-size: 14px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
   display: flex; align-items: baseline; gap: 8px;
-  font-size: 15px; line-height: 1.4;
 }
-.opt-res .row1 .k { font-weight: 600; color: var(--ink-2); font-size: 13.5px; }
-.opt-res.mine .row1 .k { color: var(--zh-blue); }
-.opt-res .row1 .pct { margin-left: auto; font-weight: 650; font-size: 15px; font-variant-numeric: tabular-nums; }
-.opt-res .mine-tag {
-  position: absolute;
-  top: -9px; right: 12px;
-  background: var(--zh-blue);
-  color: #fff;
-  font-size: 10.5px;
-  padding: 1.5px 7px;
-  border-radius: 8px;
+.beat-kicker .k, .beat-choice .k { color: var(--zh-blue); font-weight: 700; }
+.beat-choice {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 36px;
+  display: flex; gap: 10px; align-items: baseline;
 }
+.beat-num {
+  font-size: 66px;
+  font-weight: 800;
+  color: var(--zh-blue);
+  line-height: 1;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+.beat-num small { font-size: 30px; font-weight: 700; margin-left: 2px; letter-spacing: 0; }
+.beat-line { font-size: 17px; margin-top: 10px; }
+.beat-hook {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 16.5px;
+  line-height: 1.6;
+}
+.beat-hook b { color: var(--zh-blue); font-weight: 700; }
+.beat-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--zh-blue);
+  letter-spacing: .5px;
+  line-height: 1.55;
+  margin: 24px 0 8px;
+}
+.beat-label:first-child { margin-top: 0; }
+.beat-label.blind { color: var(--warn); }
+.beat-text { font-size: 19px; line-height: 1.65; font-weight: 500; }
+.beat-text.dim { font-size: 17px; font-weight: 400; color: var(--ink-2); }
+.beat-foot { display: flex; align-items: center; justify-content: space-between; }
+.dots { display: flex; gap: 6px; align-items: center; }
+.dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-2); }
+.dots i.on { width: 16px; background: var(--zh-blue); }
+.b-hint { font-size: 12.5px; color: var(--ink-3); animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+.b-in { animation: rise .5s ease both; }
+
+/* ---------- final (beat 4) ---------- */
+.final-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.final-kicker { font-size: 13px; font-weight: 700; color: var(--zh-blue); letter-spacing: 1px; }
+.replay { border: none; background: none; font-family: inherit; font-size: 12px; color: var(--ink-3); cursor: pointer; }
+.final-quote { font-size: 19px; line-height: 1.7; font-weight: 600; }
+.final-label { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
 .bar { height: 6px; border-radius: 3px; background: var(--page); margin-top: 9px; overflow: hidden; }
 .bar i {
   display: block; height: 100%;
@@ -307,35 +360,27 @@ body {
   width: 0;
   transition: width .7s cubic-bezier(.25,.8,.3,1);
 }
-.opt-res.mine .bar i { background: var(--zh-blue); }
-
-/* tier bars */
-.tier-wrap { margin-top: 8px; display: none; }
-.tier-wrap.show { display: block; }
+.dist-row { padding: 12px 0 11px; border-top: .5px solid var(--line); }
+.final-label + .dist-row { border-top: none; }
+.dist-top { display: flex; align-items: baseline; gap: 8px; font-size: 15px; line-height: 1.4; }
+.dist-top .k { font-weight: 700; color: var(--ink-2); font-size: 13.5px; flex: none; }
+.dist-row.mine .dist-top .k, .dist-row.mine .dist-top .pct { color: var(--zh-blue); }
+.dist-top .pct { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.mine-chip {
+  flex: none;
+  font-size: 10.5px;
+  color: #fff;
+  background: var(--zh-blue);
+  border-radius: 8px;
+  padding: 1.5px 7px;
+}
+.dist-row.mine > .bar i { background: var(--zh-blue); }
+.tiers { margin-top: 7px; }
 .tier-row { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
 .tier-row .t-label { flex: none; width: 56px; font-size: 11.5px; color: var(--ink-3); }
 .tier-row .bar { flex: 1; margin: 0; height: 5px; }
 .tier-row .t-pct { flex: none; width: 34px; text-align: right; font-size: 11.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-
 .dist-note { font-size: 11.5px; color: var(--ink-3); margin-top: 12px; }
-.seg {
-  display: flex;
-  background: var(--page);
-  border-radius: 8px;
-  padding: 3px;
-  margin-bottom: 4px;
-}
-.seg button {
-  flex: 1;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--ink-2);
-  padding: 6px 0;
-  border-radius: 6px;
-}
-.seg button.on { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 
 /* reveal sections */
 .reveal { animation: rise .45s ease both; }
@@ -348,52 +393,38 @@ body {
   to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reveal { animation: none; }
+  .reveal, .b-in { animation: none; }
+  .b-hint { animation: none; opacity: .7; }
   .bar i { transition: none; }
 }
 
-/* answer cards (per-option reasons) */
-.ans {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  margin-top: 10px;
-  overflow: hidden;
-}
-.ans:first-of-type { margin-top: 0; }
-.ans-head {
+/* per-option reasons (typographic, no boxes) */
+.fr { border-top: .5px solid var(--line); }
+.final-label + .fr { border-top: none; }
+.fr-head {
   width: 100%;
-  border: none; background: var(--card);
+  border: none; background: none;
   font-family: inherit;
   display: flex; align-items: center; gap: 8px;
-  padding: 11px 13px;
+  padding: 13px 0;
   font-size: 14.5px;
   font-weight: 600;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
 }
-.ans-head .k { color: var(--zh-blue); flex: none; }
-.ans-head .caret { margin-left: auto; color: var(--ink-3); transition: transform .2s; flex: none; }
-.ans.open .ans-head .caret { transform: rotate(180deg); }
-.ans-body { display: none; padding: 0 13px 13px; }
-.ans.open .ans-body { display: block; }
-.ans-body p { font-size: 14px; line-height: 1.65; color: var(--ink); margin-top: 8px; padding-left: 20px; position: relative; }
-.ans-body p:first-child { margin-top: 0; }
-.ans-body p .sign { position: absolute; left: 0; top: 1px; font-weight: 700; }
-.ans-body p.why .sign { color: var(--zh-blue); }
-.ans-body p.blind { color: var(--ink-2); }
-.ans-body p.blind .sign { color: var(--warn); }
-.ans-body p b { font-weight: 600; }
-
-/* insight */
-.insight {
-  background: var(--zh-blue-bg);
-  border-left: 3px solid var(--zh-blue);
-  border-radius: 0 10px 10px 0;
-  padding: 13px 14px;
-}
-.insight .tag { font-size: 13px; font-weight: 700; color: var(--zh-blue); margin-bottom: 6px; }
-.insight p { font-size: 14.5px; line-height: 1.7; }
+.fr-head .k { color: var(--zh-blue); flex: none; }
+.fr-head .caret { margin-left: auto; color: var(--ink-3); transition: transform .2s; flex: none; }
+.fr.open .fr-head .caret { transform: rotate(180deg); }
+.fr-body { display: none; padding: 0 0 14px; }
+.fr.open .fr-body { display: block; }
+.fr-body p { font-size: 14px; line-height: 1.65; color: var(--ink); margin-top: 8px; padding-left: 20px; position: relative; }
+.fr-body p:first-child { margin-top: 0; }
+.fr-body p .sign { position: absolute; left: 0; top: 1px; font-weight: 700; }
+.fr-body p.why .sign { color: var(--zh-blue); }
+.fr-body p.blind { color: var(--ink-2); }
+.fr-body p.blind .sign { color: var(--warn); }
+.fr-body p b { font-weight: 600; }
 
 /* actions */
 .actions { display: flex; gap: 10px; }
@@ -582,7 +613,7 @@ function openDetail(id) {
         <svg width="19" height="19" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="9.5" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><circle cx="15" cy="9.5" r="1.6"/></svg>
       </span>
     </div>
-    <div class="detail-body">
+    <div class="detail-body" id="detail-head">
       <div class="chip-row"><span class="chip">${esc(c.domain)}</span><span class="chip">${c.type}</span></div>
       <h1>${esc(c.title)}</h1>
       <div class="meta"><span>${fmt(c.stats.chosen)} 人已选 · ${fmt(c.stats.follow)} 人关注了本题</span></div>
@@ -593,7 +624,7 @@ function openDetail(id) {
   `;
   $('#btn-back').addEventListener('click', backToFeed);
   const picked = answers[id];
-  if (picked) renderResult(c, picked, false);
+  if (picked) renderFinal(c, picked, false);
   else renderChoosing(c);
   feedView.classList.remove('active');
   detailView.classList.add('active');
@@ -608,6 +639,7 @@ function backToFeed() {
 
 function renderChoosing(c) {
   const sec = $('#sec-options');
+  sec.className = 'section';
   sec.innerHTML = `
     <div class="section-label">做出你的判断 <small>选择后揭示平台答案与分布</small></div>
     ${c.options.map(o => `
@@ -620,75 +652,138 @@ function renderChoosing(c) {
     b.addEventListener('click', () => {
       answers[c.id] = b.dataset.key;
       saveAnswers();
-      renderResult(c, b.dataset.key, true);
+      renderFeed();
+      startReveal(c, b.dataset.key);
     }));
 }
 
-function renderResult(c, picked, animate) {
+/* ---------- reveal: 4-beat narrative ---------- */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function countUp(el, target) {
+  if (reduceMotion) { el.textContent = target; return; }
+  const t0 = performance.now(), dur = 800;
+  const tick = t => {
+    const p = Math.min(1, (t - t0) / dur);
+    el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+function tierHook(o) {
+  const s = o.tiers.super, diff = s - o.pct;
+  if (diff < -3) return `但超高价值用户里，只有 <b>${s}%</b> 这么选`;
+  if (diff > 3) return `超高价值用户里，有 <b>${s}%</b> 和你站在一起`;
+  return `超高价值用户的选择，和大众几乎一致`;
+}
+
+function counterPick(c, picked) {
+  const mine = c.options.find(o => o.key === picked);
+  const others = c.options.filter(o => o.key !== picked)
+    .sort((a, b) => b.tiers.super - a.tiers.super);
+  return { opt: others[0], aligned: others[0].tiers.super <= mine.tiers.super };
+}
+
+function startReveal(c, picked) { renderBeat(c, picked, 1); }
+
+function renderBeat(c, picked, n) {
   const sec = $('#sec-options');
+  $('#reveal-zone').innerHTML = '';
+  $('#detail-head').style.display = 'none';
+  sec.className = 'beat-sec';
+  const mine = c.options.find(o => o.key === picked);
+  let body = '';
+  if (n === 1) {
+    body = `
+      <div class="b-in beat-kicker">你选了</div>
+      <div class="b-in beat-choice"><span class="k">${picked}</span><span>${esc(mine.text)}</span></div>
+      <div class="b-in beat-num" style="animation-delay:.25s"><span id="cnt">0</span><small>%</small></div>
+      <div class="b-in beat-line" style="animation-delay:.35s">的人和你做了同样的选择</div>
+      <div class="b-in beat-hook" style="animation-delay:1.05s">${tierHook(mine)}</div>`;
+  } else if (n === 2) {
+    body = `
+      <div class="b-in beat-kicker"><span class="k">${picked}</span><span>${esc(mine.text)}</span></div>
+      <div class="b-in beat-label" style="animation-delay:.15s">你可能是因为</div>
+      <p class="b-in beat-text" style="animation-delay:.25s">${esc(mine.reason)}</p>
+      <div class="b-in beat-label blind" style="animation-delay:.95s">但你可能忽略了</div>
+      <p class="b-in beat-text dim" style="animation-delay:1.05s">${esc(mine.blindspot)}</p>`;
+  } else {
+    const { opt, aligned } = counterPick(c, picked);
+    const head = aligned
+      ? `你和超高价值用户站在了一边<br>但选 ${opt.key} 的人也有他们的理由`
+      : `选 ${opt.key} 的人看到了什么`;
+    body = `
+      <div class="b-in beat-kicker">对面最强的论点</div>
+      <div class="b-in beat-label" style="animation-delay:.15s">${head}</div>
+      <p class="b-in beat-text" style="animation-delay:.3s">${esc(opt.reason)}</p>
+      <div class="b-in beat-hook" style="animation-delay:1s">超高价值用户里，<b>${opt.tiers.super}%</b> 选了 ${opt.key} ${esc(opt.text)}</div>`;
+  }
   sec.innerHTML = `
-    <div class="section-label">选择分布 <small>共 ${fmt(c.stats.chosen)} 人作答</small></div>
-    <div class="seg" id="seg">
-      <button class="on" data-mode="all">整体</button>
-      <button data-mode="tiers">按用户分层</button>
-    </div>
-    ${c.options.map(o => `
-      <div class="opt-res ${o.key === picked ? 'mine' : ''}">
-        ${o.key === picked ? '<span class="mine-tag">你的选择</span>' : ''}
-        <div class="row1"><span class="k">${o.key}</span><span>${esc(o.text)}</span><span class="pct">${o.pct}%</span></div>
-        <div class="bar"><i data-w="${o.pct}"></i></div>
-        <div class="tier-wrap">
-          ${[['普通用户', o.tiers.normal], ['高价值', o.tiers.high], ['超高价值', o.tiers.super]].map(([label, v]) => `
-            <div class="tier-row">
-              <span class="t-label">${label}</span>
-              <div class="bar"><i data-w="${v}" style="width:${v}%"></i></div>
-              <span class="t-pct">${v}%</span>
-            </div>`).join('')}
-        </div>
-      </div>`).join('')}
-    <div class="dist-note">高价值用户 = 在该领域获得高认同的用户（演示数据）</div>
-  `;
-
-  // animate overall bars
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    sec.querySelectorAll('.opt-res > .bar > i').forEach(i => { i.style.width = i.dataset.w + '%'; });
-  }));
-
-  // tier toggle
-  $('#seg', sec).querySelectorAll('button').forEach(b =>
-    b.addEventListener('click', () => {
-      $('#seg', sec).querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-      const show = b.dataset.mode === 'tiers';
-      sec.querySelectorAll('.tier-wrap').forEach(w => w.classList.toggle('show', show));
-    }));
-
-  renderReveal(c, picked, animate);
+    <div class="beat" id="beat">
+      <div class="beat-q">${esc(c.title)}</div>
+      <div class="beat-main">${body}</div>
+      <div class="beat-foot">
+        <span class="dots">${[1, 2, 3, 4].map(i => `<i class="${i === n ? 'on' : ''}"></i>`).join('')}</span>
+        <span class="b-hint">${n === 3 ? '点按查看完整答案' : '点按继续'}</span>
+      </div>
+    </div>`;
+  $('#beat').addEventListener('click', () =>
+    n < 3 ? renderBeat(c, picked, n + 1) : renderFinal(c, picked, true));
+  if (n === 1) countUp($('#cnt'), mine.pct);
+  screen.scrollTop = 0;
 }
 
-function renderReveal(c, picked, animate) {
+function renderFinal(c, picked, animate) {
+  const sec = $('#sec-options');
   const zone = $('#reveal-zone');
+  $('#detail-head').style.display = '';
+  sec.className = 'section';
   const d = i => animate ? `reveal d${i}` : '';
+  sec.innerHTML = `
+    <div class="final-top">
+      <span class="final-kicker">原来如此</span>
+      <button class="replay" id="btn-replay">↻ 重看揭示</button>
+    </div>
+    <p class="final-quote">${esc(c.insight)}</p>
+  `;
+  $('#btn-replay').addEventListener('click', () => startReveal(c, picked));
   zone.innerHTML = `
     <div class="section ${d(1)}">
-      <div class="section-label">平台答案 <small>每个选项的成立条件与盲区</small></div>
+      <div class="final-label">大家怎么选 · 共 ${fmt(c.stats.chosen)} 人作答</div>
       ${c.options.map(o => `
-        <div class="ans ${o.key === picked ? 'open' : ''}">
-          <button class="ans-head">
+        <div class="dist-row ${o.key === picked ? 'mine' : ''}">
+          <div class="dist-top">
+            <span class="k">${o.key}</span><span>${esc(o.text)}</span>
+            ${o.key === picked ? '<span class="mine-chip">你的选择</span>' : ''}
+            <span class="pct">${o.pct}%</span>
+          </div>
+          <div class="bar"><i data-w="${o.pct}"${animate ? '' : ` style="width:${o.pct}%"`}></i></div>
+          <div class="tiers">
+            ${[['普通用户', o.tiers.normal], ['高价值', o.tiers.high], ['超高价值', o.tiers.super]].map(([label, v]) => `
+              <div class="tier-row">
+                <span class="t-label">${label}</span>
+                <div class="bar"><i style="width:${v}%"></i></div>
+                <span class="t-pct">${v}%</span>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+      <div class="dist-note">高价值用户 = 在该领域获得高认同的用户（演示数据）</div>
+    </div>
+    <div class="section ${d(2)}">
+      <div class="final-label">每个选项的理由</div>
+      ${c.options.map(o => `
+        <div class="fr ${o.key === picked ? 'open' : ''}">
+          <button class="fr-head">
             <span class="k">${o.key}</span>
             <span>${esc(o.text)}</span>
             <svg class="caret" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5 7 9.5l4-4"/></svg>
           </button>
-          <div class="ans-body">
+          <div class="fr-body">
             <p class="why"><span class="sign">✓</span><b>为什么有人选它：</b>${esc(o.reason)}</p>
             <p class="blind"><span class="sign">!</span><b>它忽略了：</b>${esc(o.blindspot)}</p>
           </div>
         </div>`).join('')}
-    </div>
-    <div class="section ${d(2)}">
-      <div class="insight">
-        <div class="tag">原来如此</div>
-        <p>${esc(c.insight)}</p>
-      </div>
     </div>
     <div class="section ${d(3)}">
       <div class="actions">
@@ -710,7 +805,12 @@ function renderReveal(c, picked, animate) {
       <button class="next-btn" id="btn-next">${nextLabel()}</button>
     </div>
   `;
-  zone.querySelectorAll('.ans-head').forEach(h =>
+  if (animate) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      zone.querySelectorAll('.dist-row > .bar > i').forEach(i => { i.style.width = i.dataset.w + '%'; });
+    }));
+  }
+  zone.querySelectorAll('.fr-head').forEach(h =>
     h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
   zone.querySelectorAll('.actions button').forEach(b =>
     b.addEventListener('click', () => toast(b.dataset.t)));
@@ -719,6 +819,7 @@ function renderReveal(c, picked, animate) {
     if (nxt) openDetail(nxt.id);
     else backToFeed();
   });
+  screen.scrollTop = 0;
 }
 
 function nextUnanswered() {
