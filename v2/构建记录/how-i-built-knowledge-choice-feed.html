@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我是如何做出的：Knowledge Choice Feed</title>
+  <style>
+    :root {
+      --paper: #f3ead7;
+      --paper-2: #fbf6ec;
+      --panel: #fcf8ef;
+      --ink: #241c12;
+      --ink-soft: #6b5e47;
+      --ink-faint: #9b8d72;
+      --line: #e4d9c0;
+      --line-strong: #d6c8a9;
+      --green: #1c6b54;
+      --green-deep: #0e4636;
+      --ember: #bd562a;
+      --gold: #bf8a36;
+      --teal: #0e8f86;
+      --display:
+        "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino,
+        Georgia, "Source Han Sans SC", "Source Han Sans CN",
+        "Noto Sans CJK SC", "思源黑体", "PingFang SC", sans-serif;
+      --sans:
+        "Avenir Next", Avenir, "Helvetica Neue", "Source Han Sans SC",
+        "Source Han Sans CN", "Noto Sans CJK SC", "思源黑体", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(120% 90% at 85% -10%, rgba(28, 107, 84, 0.1), transparent 55%),
+        radial-gradient(90% 70% at -10% 110%, rgba(189, 86, 42, 0.08), transparent 55%),
+        repeating-linear-gradient(0deg, rgba(120, 100, 60, 0.035) 0 1px, transparent 1px 5px);
+      font-family: var(--sans);
+      line-height: 1.85;
+      word-break: normal;
+      overflow-wrap: anywhere;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      z-index: 50;
+      background: linear-gradient(90deg, var(--green), var(--teal), var(--gold));
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+    }
+
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 26px;
+    }
+
+    .hero {
+      padding: 104px 0 44px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-family: var(--sans);
+      color: var(--ink-soft);
+      font-size: 13px;
+      letter-spacing: 0.32em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-left: 0.32em;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--green);
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(56px, 11vw, 110px);
+      line-height: 0.94;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-family: var(--display);
+      font-weight: 700;
+      color: var(--green-deep);
+      font-size: clamp(22px, 4.4vw, 34px);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .diamond {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 32px 0 24px;
+    }
+
+    .diamond::before,
+    .diamond::after {
+      content: "";
+      width: 60px;
+      height: 1px;
+      background: var(--line-strong);
+    }
+
+    .diamond i {
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      transform: rotate(45deg);
+    }
+
+    .intro {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      font-family: var(--display);
+      color: var(--ink-soft);
+      font-size: clamp(18px, 2.3vw, 22px);
+      line-height: 1.8;
+    }
+
+    .part-card {
+      margin: 76px 0 6px;
+      padding: 34px 24px;
+      background: linear-gradient(180deg, var(--paper-2), transparent);
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line);
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    .part-label {
+      color: var(--gold);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      padding-left: 0.3em;
+    }
+
+    .part-card h2 {
+      margin: 10px 0 0;
+      color: var(--green);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(28px, 5.6vw, 44px);
+      line-height: 1.22;
+    }
+
+    .part-card p {
+      margin: 10px auto 0;
+      width: min(700px, 100%);
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .section {
+      margin: 0 0 8px;
+    }
+
+    .section-number {
+      display: inline-block;
+      color: var(--gold);
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      padding: 3px 12px;
+      margin-top: 52px;
+    }
+
+    .section h2 {
+      display: inline-block;
+      margin: 52px 0 8px 16px;
+      color: var(--ink);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(23px, 4vw, 32px);
+      line-height: 1.35;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 18px;
+      padding: 14px 0;
+      border: 0;
+      position: relative;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: 19px;
+      top: 33px;
+      bottom: -33px;
+      width: 3px;
+      background: var(--line-strong);
+      z-index: 0;
+    }
+
+    .step:last-child::before {
+      display: none;
+    }
+
+    .step-index {
+      position: relative;
+      z-index: 1;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #f4efe2;
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1;
+      box-shadow: 0 3px 10px -3px rgba(14, 70, 54, 0.6);
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 13px;
+      color: var(--green-deep);
+      background: rgba(28, 107, 84, 0.1);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .prompt {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 18.5px;
+      line-height: 1.8;
+      color: var(--ink);
+      padding-left: 16px;
+      border-left: 3px solid var(--green);
+      font-weight: 400;
+    }
+
+    .prompt span {
+      display: block;
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--ink-faint);
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .did {
+      margin-top: 15px;
+      color: var(--ink-soft);
+      font-size: 15.5px;
+      line-height: 1.8;
+      display: block;
+      position: relative;
+      padding-left: 26px;
+    }
+
+    .did::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .did strong {
+      color: var(--ink);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .step > div:nth-child(2) {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 20px 16px;
+      box-shadow: 0 6px 22px -16px rgba(40, 30, 12, 0.5);
+    }
+
+    .principles {
+      display: grid;
+      gap: 14px;
+      margin: 44px 0 8px;
+      background: linear-gradient(180deg, var(--paper-2), var(--panel));
+      border: 1px solid var(--line-strong);
+      border-radius: 20px;
+      padding: 34px 30px 30px;
+      box-shadow: 0 10px 34px -22px rgba(40, 30, 12, 0.5);
+      counter-reset: principle;
+    }
+
+    .principle {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 14px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .principle::before {
+      counter-increment: principle;
+      content: counter(principle);
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--green);
+      color: #f4efe2;
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 15px;
+      margin-top: 2px;
+    }
+
+    .principle:nth-child(even)::before {
+      background: var(--teal);
+    }
+
+    .principle h3 {
+      margin: 0 0 2px;
+      color: var(--ink);
+      font-size: 16.5px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .principle p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 14.5px;
+      line-height: 1.7;
+      grid-column: 2;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      margin: 38px 0 96px;
+    }
+
+    .links a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--panel);
+      font-weight: 700;
+    }
+
+    footer {
+      margin: 66px 0 90px;
+      padding: 0;
+      color: var(--ink-faint);
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    footer .mark {
+      font-family: var(--display);
+      font-size: 21px;
+      color: var(--ink);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .hero {
+        padding: 60px 0 24px;
+      }
+
+      .step {
+        grid-template-columns: 36px 1fr;
+        gap: 12px;
+      }
+
+      .step-index {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+
+      .prompt {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">一次真实的产品构建全记录</div>
+      <h1>Knowledge<br>Choice Feed</h1>
+      <div class="subtitle">判断力训练版</div>
+      <div class="diamond"><span></span><i></i><span></span></div>
+      <p class="intro">
+        我用大白话描述了一个“刷着玩但能长认知”的产品想法：把高密度问答、经验和争论，改造成先选择、后揭示的知识题卡。下面是这段构建过程的记录：每一步保留我的原话指令，并用一两句话说明它做了什么。
+      </p>
+    </section>
+
+    <section class="part-card">
+      <div class="part-label">第一部分</div>
+      <h2>从一个“刷着玩”的想法，到产品主线</h2>
+      <p>先把粗糙想法从“知乎蒸馏器”里拎出来，定成一个内容服务平台：不是用户来问，而是平台用好问题吸引用户先做判断。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-number">01</div>
+      <h2>构思与定位</h2>
+
+      <article class="step">
+        <div class="step-index">1</div>
+        <div>
+          <div class="tag">灵感</div>
+          <p class="prompt"><span>我的指令</span> 我现在想做一个刷着玩的应用，核心是蒸馏知乎或其他平台知识，然后以一种问答选项的方式，让用户去选择答案，每个答案下面附上有关这个选项理由的高价值信息。</p>
+          <p class="did"><strong>它做了什么：</strong>把想法先定成“选择优先的知识判断 feed”，不是传统问答，也不是纯摘要。核心动作变成：看到问题、先选择、再看理由和分布。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">2</div>
+        <div>
+          <div class="tag">边界</div>
+          <p class="prompt"><span>我的指令</span> 不用管合规问题。</p>
+          <p class="did"><strong>它做了什么：</strong>把分析范围限定在产品价值、用户机制、内容质量和商业风险，不展开版权、抓取授权和平台合规。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">3</div>
+        <div>
+          <div class="tag">方法</div>
+          <p class="prompt"><span>我的指令</span> 你用 skill 去调研下。你用 skill 了吗？</p>
+          <p class="did"><strong>它做了什么：</strong>使用产品调研和需求分析框架，把产品从“知识摘要”重新抽象成“判断力训练平台”，并补出竞品、MVP、增长和风险。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">02</div>
+      <h2>把用户分层和参与机制想清楚</h2>
+
+      <article class="step">
+        <div class="step-index">4</div>
+        <div>
+          <div class="tag">用户分层</div>
+          <p class="prompt"><span>我的指令</span> 加一个功能点，用户分层，发布高价值回答后成为高价值用户，选项以条形展示选项分布，再细分每个选项普通用户、高价值用户、超高价值用户占比。</p>
+          <p class="did"><strong>它做了什么：</strong>把“多数人怎么选”和“高手怎么选”拆成两层反馈：整体分布用于印证，高价值用户分布用于制造认知差距。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">5</div>
+        <div>
+          <div class="tag">评论动力</div>
+          <p class="prompt"><span>我的指令</span> 如果用户选完已经有标准答案了，为什么还要评论？评论完对标准答案的影响几何？有评论动力吗？</p>
+          <p class="did"><strong>它做了什么：</strong>把用户评论从“争夺标准答案”里剥离出来，定位为公开表达、补案例、展示判断和沉淀个人主页资产。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">6</div>
+        <div>
+          <div class="tag">采纳机制</div>
+          <p class="prompt"><span>我的指令</span> 你还需要被采纳？那火了需要多少人力？采纳人的品味凭什么决定大家的想法？</p>
+          <p class="did"><strong>它做了什么：</strong>放弃人工采纳制，改成基于长期行为信号的高价值用户机制：保存、有用反馈、低质率和领域稳定性。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">7</div>
+        <div>
+          <div class="tag">评论分层</div>
+          <p class="prompt"><span>我的指令</span> 用户选择了一个选项后，评论前需要选择：我和答案思考维度一致，我来进行补充；或者虽然我选了这个答案，但我和答案思考维度完全不同。</p>
+          <p class="did"><strong>它做了什么：</strong>把评论入口压缩成一次轻选择：同维度补充或同选项不同思考维度。这样平台不用事后猜用户意图。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">8</div>
+        <div>
+          <div class="tag">减负</div>
+          <p class="prompt"><span>我的指令</span> 这个理由标签就不用了，这样的话用户互动链路太长了体验不好。</p>
+          <p class="did"><strong>它做了什么：</strong>删掉额外理由标签，只保留评论维度选择和短评论，避免把表达链路拉得太长。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">03</div>
+      <h2>保存、主页、关注流</h2>
+
+      <article class="step">
+        <div class="step-index">9</div>
+        <div>
+          <div class="tag">判断资产</div>
+          <p class="prompt"><span>我的指令</span> 选完选项，可以进行左滑保存至个人画像，别人打开主页会看到这个人的选择记录。</p>
+          <p class="did"><strong>它做了什么：</strong>把“选择”分成两种状态：默认只进聚合分布，左滑才进入个人主页，成为可被别人理解的判断资产。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">10</div>
+        <div>
+          <div class="tag">主页内容</div>
+          <p class="prompt"><span>我的指令</span> 选择记录里面不止选择，评论了的话也展示出来；上面是选择后的话题热度/用户话题选择时间顺序排序，还有用户评论时间顺序以及评论被点赞的排序。</p>
+          <p class="did"><strong>它做了什么：</strong>把主页拆成选择记录和评论记录：选择默认按话题热度，评论默认按综合活性，并支持时间和点赞排序。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">11</div>
+        <div>
+          <div class="tag">副功能</div>
+          <p class="prompt"><span>我的指令</span> 用户平时可以发帖，我们设置几个主题，用户写完内容进行简单识别默认进入一个主题，也可以选择不进入主题。</p>
+          <p class="did"><strong>它做了什么：</strong>把主题讨论定位成副功能：不抢主 feed，但帮助用户补充主页画像，也为平台沉淀非题卡内容资产。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">12</div>
+        <div>
+          <div class="tag">关注流</div>
+          <p class="prompt"><span>我的指令</span> 用户可以关注该问题，后续系统向 feed 流推荐该问题或许有更新的爆款回答。另一个副页面看关注的人或关注的问题最新回答发帖，加一个特别关注功能。</p>
+          <p class="did"><strong>它做了什么：</strong>形成双页面结构：主页面探索好问题，副页面看关注的人、问题和特别关注人的最新动态。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">13</div>
+        <div>
+          <div class="tag">交互修正</div>
+          <p class="prompt"><span>我的指令</span> 别“更多”了，就直接有私密保存按钮和分享按钮。右滑就是退出该问题和选项的功能，不要右滑跳过。</p>
+          <p class="did"><strong>它做了什么：</strong>把交互收敛成直接按钮：私密保存、分享、关注问题；左滑进入个人画像，右滑退出详情回到信息流。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="part-card">
+      <div class="part-label">第二部分</div>
+      <h2>从需求分析，到商业诊断和优先级重排</h2>
+      <p>当功能开始变多，真正的问题变成：这台机器最先要验证什么？最后结论是，不是先做复杂社区，而是先做题卡质量 SOP。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-number">04</div>
+      <h2>需求分析与调研沉淀</h2>
+
+      <article class="step">
+        <div class="step-index">14</div>
+        <div>
+          <div class="tag">需求分析</div>
+          <p class="prompt"><span>我的指令</span> 你给我做下需求分析，有需要的地方也用 skill 调研下。下面是需求分析的模板。</p>
+          <p class="did"><strong>它做了什么：</strong>按定位、功能、分析、保障条件四部分写出需求分析，再把产品调研里多出的竞品、题型、增长、商业化放到附录。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">15</div>
+        <div>
+          <div class="tag">未决风险</div>
+          <p class="prompt"><span>我的指令</span> 最后面加上一个遗待解决的风险：怎么把用户评论和标准答案融合起来。</p>
+          <p class="did"><strong>它做了什么：</strong>把“评论如何反哺平台答案”放进未解决风险，而不是急着在 MVP 里融合。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">16</div>
+        <div>
+          <div class="tag">用户画像</div>
+          <p class="prompt"><span>我的指令</span> 核心用户画像还有高等学历，因为他们也有中等学历人群的部分需求，而且他们也希望自己的选项被别人看到，营造自己人设。</p>
+          <p class="did"><strong>它做了什么：</strong>把核心用户从“中等学历中流阶层”扩展为两类：中等学历打拼者和高等学历表达型用户。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">17</div>
+        <div>
+          <div class="tag">公开规则</div>
+          <p class="prompt"><span>我的指令</span> 选择选项不是立即可见啊，你得左滑才加入个人主页才可见。而且评论区排序你得综合这些维度，保持评论区活性。</p>
+          <p class="did"><strong>它做了什么：</strong>明确公开规则：选项选择只进入聚合分布，不自动公开；评论区默认综合活性排序，避免只剩旧高赞。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">05</div>
+      <h2>用 dbskill 做商业模式诊断</h2>
+
+      <article class="step">
+        <div class="step-index">18</div>
+        <div>
+          <div class="tag">安装工具</div>
+          <p class="prompt"><span>我的指令</span> 安装 dontbesilent2025/dbskill，然后诊断我这个项目。</p>
+          <p class="did"><strong>它做了什么：</strong>安装 dbs skill 套件，并用商业模式体检框架诊断项目：这还不是赚钱机器，而是验证用户是否愿意交出判断数据的机器。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">19</div>
+        <div>
+          <div class="tag">优先级重排</div>
+          <p class="prompt"><span>我的指令</span> 第一个功能应该是：这个项目最难规模化的不是开发，是题卡质量。平台答案如果像 AI 套话，产品立刻死亡。</p>
+          <p class="did"><strong>它做了什么：</strong>把“题卡质量 SOP 与编辑标准”提升为第一功能，写入入选标准、排除标准、选项标准、高价值解释标准和 AI 套话识别。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="part-card">
+      <div class="part-label">第三部分</div>
+      <h2>仓库、竞品分析和构建记录</h2>
+      <p>产品不只是文档，还需要持续沉淀：主需求文档、竞品分析、构建记录各放在自己的地方，方便之后继续 build。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-number">06</div>
+      <h2>发布到 GitHub</h2>
+
+      <article class="step">
+        <div class="step-index">20</div>
+        <div>
+          <div class="tag">建仓库</div>
+          <p class="prompt"><span>我的指令</span> 把这个需求分析文档，在 Documents 单独创建个文件夹，然后放 GitHub 中。GitHub 有没有不公开，但是可以通过链接访问的方式？</p>
+          <p class="did"><strong>它做了什么：</strong>在本地创建 <code>knowledge-choice-feed</code> 仓库，推到 GitHub private 仓库，并说明普通 GitHub 仓库没有“知道链接就能看”的半公开模式。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">21</div>
+        <div>
+          <div class="tag">提交</div>
+          <p class="prompt"><span>我的指令</span> 登陆了，就 private 吧。</p>
+          <p class="did"><strong>它做了什么：</strong>创建并推送 private 仓库：<code>LU90210/knowledge-choice-feed</code>。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">07</div>
+      <h2>竞品分析单独成册</h2>
+
+      <article class="step">
+        <div class="step-index">22</div>
+        <div>
+          <div class="tag">竞品补充</div>
+          <p class="prompt"><span>我的指令</span> 这个可以加到竞品分析：ELYS 的衰落。</p>
+          <p class="did"><strong>它做了什么：</strong>把 ELYS 作为 AI 伪互动社区的反面案例，提炼出“AI 可以回复，不能替代真实他者确认”。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">23</div>
+        <div>
+          <div class="tag">结构调整</div>
+          <p class="prompt"><span>我的指令</span> 另起一个文件夹专门放竞品分析。</p>
+          <p class="did"><strong>它做了什么：</strong>新建 <code>竞品分析/</code> 目录，放入竞品总览和 ELYS 案例，主需求文档只保留简短入口。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">08</div>
+      <h2>把这次构建记录下来</h2>
+
+      <article class="step">
+        <div class="step-index">24</div>
+        <div>
+          <div class="tag">复盘</div>
+          <p class="prompt"><span>我的指令</span> 我现在正在 build 这个产品，我想记录我怎么 build 的，你能不能仿照这个，也记录下。</p>
+          <p class="did"><strong>它做了什么：</strong>先做了 Markdown 构建记录，把产品从想法到结构收敛的过程记下来。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">25</div>
+        <div>
+          <div class="tag">样式对齐</div>
+          <p class="prompt"><span>我的指令</span> 你可以直接看啊，在这里。</p>
+          <p class="did"><strong>它做了什么：</strong>看到参考页是“我是如何做出的”叙事页，于是补出这个 HTML：按阶段、编号、我的原话指令和它做了什么来记录全过程。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">09</div>
+      <h2>竞品分析扩容与长期规则</h2>
+
+      <article class="step">
+        <div class="step-index">26</div>
+        <div>
+          <div class="tag">竞品扩容</div>
+          <p class="prompt"><span>我的指令</span> 加到竞品分析中。（即刻、推特、小红书三篇社交媒体分析笔记）</p>
+          <p class="did"><strong>它做了什么：</strong>把三篇笔记写成竞品案例：即刻回答关注流怎么才能成立，推特警示身份变现和激励信号的代价，小红书证明决策型产品可以和娱乐 feed 错位共存。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">27</div>
+        <div>
+          <div class="tag">长期规则</div>
+          <p class="prompt"><span>我的指令</span> 以后能不能每次进行大改之后，你都更新下构建记录的 html，并更新 GitHub 上，把这个设为规则。</p>
+          <p class="did"><strong>它做了什么：</strong>把“大改后更新构建记录并推送 GitHub”设为长期规则，写进构建记录说明和 agent 记忆。这一页从一次性复盘，变成随产品持续生长的记忆。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">10</div>
+      <h2>MVP：真实数据管线与知乎风演示</h2>
+
+      <article class="step">
+        <div class="step-index">28</div>
+        <div>
+          <div class="tag">MVP 启动</div>
+          <p class="prompt"><span>我的指令</span> 我现在要做 MVP，数据来源：developer.zhihu.com，知乎 API，你不用管合规商用啥的。先就搞一个类别的，抽出 15-30 题左右。做个简单演示界面，长得像手机端知乎，但 html 形式。</p>
+          <p class="did"><strong>它做了什么：</strong>探明知乎数据开放平台的接口（知乎搜索、热榜，Bearer 鉴权），实测打通后规划了三步：拉数据、蒸馏题卡、做演示页。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">29</div>
+        <div>
+          <div class="tag">接口边界</div>
+          <p class="prompt"><span>我的指令</span> 你只用这个 api 里的知乎搜索或知乎热榜就行，我只要知乎内容。（Access Secret 已私下提供）</p>
+          <p class="did"><strong>它做了什么：</strong>管线锁定两个接口；密钥只走环境变量，不写进任何落盘文件——仓库是公开的。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">30</div>
+        <div>
+          <div class="tag">题材切换</div>
+          <p class="prompt"><span>我的指令</span> 算了，你别弄 AI 前沿技术了，你换成买什么车吧，比如奔驰还是宝马，SUV 还是轿车啥的。</p>
+          <p class="did"><strong>它做了什么：</strong>12 个买车子题抓回 120 条真实内容，按六字段 SOP 蒸馏出 20 张题卡，53 条来源全部核对自 API 原始返回。换完题材才发现买车的判断冲突密度远高于 AI 话题：高赞互怼就是题卡的原材料。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">31</div>
+        <div>
+          <div class="tag">去知乎化</div>
+          <p class="prompt"><span>我的指令</span> 我这个 MVP 不需要展示跟知乎有关的任何东西。主页只需要关注和推荐。多少万人已选，是瞎编的，还是找的知乎的信息？我除了知乎的内容，不需要跟知乎有任何关系。</p>
+          <p class="did"><strong>它做了什么：</strong>承认参与数字是演示合成并在页脚标明；清除全部知乎品牌元素、来源展示和 vote 引用。沉淀成规则：数据源是管线上游，不是产品脸面。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">32</div>
+        <div>
+          <div class="tag">交互实验</div>
+          <p class="prompt"><span>我的指令</span> 你觉得有什么更好的答案展现，或者用户交互方式？我感觉这个太老登了。</p>
+          <p class="did"><strong>它做了什么：</strong>把揭示改成 4 拍分步叙事流：站队数字、你的盲区、对面最强论点、金句收尾，点按推进。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">33</div>
+        <div>
+          <div class="tag">回滚与分岔</div>
+          <p class="prompt"><span>我的指令</span> 现在我要其他的表现形式，类似抖音的界面，可以上下滑，所有内容呈现在一个屏幕中，你另起一个版本。你现在的表现形式其实还不如第一个版本，返回原样。两个版本都保存下来。还有，MVP 阶段不需要保存我选过的内容，保证我每次打开都刷新。</p>
+          <p class="did"><strong>它做了什么：</strong>回滚 4 拍恢复第一版；新增暗色沉浸的上下滑版（一屏一题、滑动切题、同屏揭示）；两版删掉持久化。教训：情绪曲线设计对内容消费成立，对查看反馈不成立——选完想马上看到全貌。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">11</div>
+      <h2>题卡字段的生死与规矩补课</h2>
+
+      <article class="step">
+        <div class="step-index">34</div>
+        <div>
+          <div class="tag">交互补齐</div>
+          <p class="prompt"><span>我的指令</span> 你这个抖音版，只能展示一个答案啊，我选了 B 只有 B，选完了之后再点 A，至少能看到 A 的答案吧？两版都可以加一个取消选择的选项。包括你先回答一下这个原来如此功能到底是啥意思？</p>
+          <p class="did"><strong>它做了什么：</strong>滑版分布行变成可点的，点哪个选项看哪个的理由；两版都加了「重新选择」。做选择的产品里，看对面的理由是核心闭环的一半，不是增强功能。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">35</div>
+        <div>
+          <div class="tag">追问到底</div>
+          <p class="prompt"><span>我的指令</span> 所以这个原来如此到底有什么用？我没看懂。而且你是怎么 prompt 去输出这个原来如此的？</p>
+          <p class="did"><strong>它做了什么：</strong>承认没有跑在管线里的 prompt，这批题卡是读完原文手工蒸馏的；把隐式写法显式化成可复用的生产 prompt。更重要的信号是：设计者两次看不懂一个字段，说明这个字段没兑现价值。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">36</div>
+        <div>
+          <div class="tag">字段裁决</div>
+          <p class="prompt"><span>我的指令</span> 那你就直接别弄什么原来如此了，搞成核心维度：几个词。就行。</p>
+          <p class="did"><strong>它做了什么：</strong>「原来如此」下线，换成「核心维度」——每题 2-4 个名词短语，指出这道题真正在比什么（如：充电便利度 / 年里程 / 补能频次）。从要求用户读完，变成允许用户扫过；词组还能标签化、按维度聚合检索。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">37</div>
+        <div>
+          <div class="tag">规矩问责</div>
+          <p class="prompt"><span>我的指令</span> 你到底看没看啊，构建记录/README.md？</p>
+          <p class="did"><strong>它做了什么：</strong>补课：当日记录改成 README 规定的六段式结构，这份 HTML 补上第 28-37 步，README 当前记录补条目，推送 GitHub。规矩写在仓库里就是给 agent 看的，跳过一次就该被抓。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">38</div>
+        <div>
+          <div class="tag">再次问责</div>
+          <p class="prompt"><span>我的指令</span> 你没有同步改我 GitHub Pages 的首页。</p>
+          <p class="did"><strong>它做了什么：</strong>仓库根 README（即 Pages 首页）补上 MVP 两个演示的直达链接，构建记录一栏拆成叙事页 + 逐次迭代目录两个入口。教训：产物入口页也是产物，改了里面不改门面等于没交付。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">12</div>
+      <h2>v2 开发线：审阅版冻结，功能继续长</h2>
+
+      <article class="step">
+        <div class="step-index">39</div>
+        <div>
+          <div class="tag">分支开发</div>
+          <p class="prompt"><span>我的指令</span> MVP 要给领导审查，不许动；另开一个版本把后续功能做上，之后能合并回来。</p>
+          <p class="did"><strong>它做了什么：</strong>git worktree 开 v2 分支到同级新目录，main 与线上演示纹丝不动。列表版依次进五个功能：保存/画像/分享卡（七）、评论分层（六）、高手怎么选（五）、关注体系（八）、主题讨论轻量版（九）。20 个并行 agent 按题卡定制生成评论与高手样本，脚本校验（选项合法、维度合法、零平台词汇）后入库 data/social.js。每阶段一个 commit，浏览器走查通过才提交。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">40</div>
+        <div>
+          <div class="tag">反馈打回</div>
+          <p class="prompt"><span>我的指令</span> 写评论要在评论上边，不能滑完所有评论才够到；维度标签太复杂，直接同维度和新维度就得了；选 A 选 B 就一个灰色小字在最右边，太不明显。</p>
+          <p class="did"><strong>它做了什么：</strong>发布入口挪到评论列表上方；维度标注砍到只剩同维度/新维度二选一，不再挑具体维度、不再给新维度起名（social.js 里的维度数据留着，只砍展示）；立场改蓝底白字「选 X」实心标签紧跟用户名。教训：扫读场景里具体维度名是噪音，立场才是评论区的第一信息。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">41</div>
+        <div>
+          <div class="tag">结构调整</div>
+          <p class="prompt"><span>我的指令</span> 别直接把 v2 分支弄上 GitHub，仓库里单独开一个文件夹存 v2 相关的，之前的版本还在原位置直接维护。</p>
+          <p class="did"><strong>它做了什么：</strong>v2 从独立分支改成 main 上的 v2/ 文件夹：装下 v2 版 mvp 和构建记录的完整镜像，根目录审阅版一个字节没动，远端 v2 分支删除。两个版本在 GitHub 页面上并排可见，Pages 还能直接跑 v2 演示（/v2/mvp/index.html）。教训：分支对不看 git 的人是隐形的，文件夹才是所见即所得的版本管理。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">13</div>
+      <h2>如果你也想用大白话 build 一个产品</h2>
+      <div class="principles">
+        <div class="principle">
+          <h3>先讲想要什么</h3>
+          <p>不用一开始讲功能列表。先用最朴素的话说出你想解决的体验。</p>
+        </div>
+        <div class="principle">
+          <h3>岔路口让它给选项</h3>
+          <p>当方向不清楚时，让 agent 摆出几条路和代价，你负责拍板。</p>
+        </div>
+        <div class="principle">
+          <h3>不满意就直接指出</h3>
+          <p>评论链路太长、采纳机制不成立、右滑交互不对，这些都要直接打断。</p>
+        </div>
+        <div class="principle">
+          <h3>先找第一性风险</h3>
+          <p>这个项目最大的风险不是开发，而是题卡质量。先抓这个，功能才不会乱长。</p>
+        </div>
+        <div class="principle">
+          <h3>每类材料单独沉淀</h3>
+          <p>需求分析、竞品分析、构建记录分开，后续迭代时不会混成一坨。</p>
+        </div>
+        <div class="principle">
+          <h3>让文档能继续生长</h3>
+          <p>现在不是最终稿，而是产品记忆。每次关键决策都应该留下“为什么”。</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="links">
+      <a href="../mvp/index.html">MVP 列表版演示</a>
+      <a href="../mvp/swipe.html">MVP 上下滑版演示</a>
+      <a href="../knowledge-choice-feed-requirements-analysis.md">需求分析</a>
+      <a href="../竞品分析/README.md">竞品分析</a>
+      <a href="2026-07-08-首轮产品定义与结构收敛.md">构建记录 Markdown</a>
+      <a href="https://github.com/LU90210/knowledge-choice-feed">GitHub 仓库</a>
+    </div>
+  </main>
+
+  <footer>
+    <span class="mark">Knowledge Choice Feed</span>
+    与 Codex 和 Claude Code 一起用自然语言构建
+  </footer>
+  <script>
+    const bar = document.getElementById("progress");
+    function onScroll() {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      bar.style.transform = "scaleX(" + (max > 0 ? h.scrollTop / max : 0) + ")";
+    }
+    document.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>买车决策 · 上下滑版 MVP</title>
+<style>
+:root {
+  --bg: #101116;
+  --bg-2: #17181f;
+  --fg: #ffffff;
+  --fg-2: rgba(255, 255, 255, .58);
+  --fg-3: rgba(255, 255, 255, .38);
+  --blue: #4D9FFF;
+  --blue-dim: rgba(77, 159, 255, .14);
+  --stroke: rgba(255, 255, 255, .16);
+  --bar-track: rgba(255, 255, 255, .1);
+  --bar-other: rgba(255, 255, 255, .28);
+  --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: #E9EAEE;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ---------- phone shell ---------- */
+.phone {
+  width: 100%;
+  height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 560px) {
+  body { padding: 24px 0; }
+  .phone {
+    width: 390px;
+    height: min(824px, calc(100vh - 48px));
+    border-radius: 42px;
+    border: 10px solid #1c1c1e;
+    box-shadow: 0 24px 60px rgba(20, 30, 50, .35);
+  }
+}
+.statusbar {
+  flex: none;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px 0 26px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  position: relative;
+  z-index: 10;
+}
+.statusbar .icons { display: flex; gap: 5px; align-items: center; }
+.statusbar svg { display: block; }
+
+/* top overlay tabs */
+.topbar {
+  position: absolute;
+  top: 44px;
+  left: 0; right: 0;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 6px 16px;
+  pointer-events: none;
+}
+.topbar .t {
+  pointer-events: auto;
+  border: none; background: none;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--fg-2);
+  text-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+.topbar .t.on {
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 17px;
+  position: relative;
+}
+.topbar .t.on::after {
+  content: "";
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  bottom: -6px;
+  width: 20px; height: 3px;
+  border-radius: 2px;
+  background: var(--fg);
+}
+.topbar .list-link {
+  pointer-events: auto;
+  position: absolute;
+  right: 14px;
+  font-size: 12px;
+  color: var(--fg-2);
+  text-decoration: none;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 3px 10px;
+}
+
+/* ---------- deck ---------- */
+.main { flex: 1; position: relative; overflow: hidden; }
+.deck {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.deck::-webkit-scrollbar { display: none; }
+.qs {
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+}
+.qs-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 64px 22px 18px;
+}
+
+/* meta */
+.qs-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--fg-2);
+  margin-bottom: 4px;
+}
+.qs-meta .n { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--fg-3); }
+
+/* choosing state */
+.qs-title {
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: auto 0 26px;
+  padding-right: 44px;
+}
+.qs-opts { padding-right: 44px; }
+.q-opt {
+  width: 100%;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, .06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: inherit;
+  font-size: 15.5px;
+  color: var(--fg);
+  text-align: left;
+  line-height: 1.45;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.q-opt:active { background: var(--blue-dim); border-color: var(--blue); }
+.q-opt .k { color: var(--blue); font-weight: 700; flex: none; }
+
+/* answered state */
+.qs-title-sm {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--fg-2);
+  margin: 14px 44px 14px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.dist-row {
+  margin: 0 0 4px -8px;
+  padding: 5px 8px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dist-row.viewing { background: rgba(255, 255, 255, .07); }
+.dist-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14.5px;
+  line-height: 1.4;
+  padding-right: 44px;
+}
+.dist-top .k { font-weight: 700; color: var(--fg-2); font-size: 13px; flex: none; }
+.dist-row.mine .dist-top .k, .dist-row.mine .dist-top .pct { color: var(--blue); }
+.dist-top .pct { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.mine-chip {
+  flex: none;
+  font-size: 10px;
+  color: #fff;
+  background: var(--blue);
+  border-radius: 8px;
+  padding: 1px 7px;
+}
+.bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bar-track);
+  margin-top: 7px;
+  margin-right: 44px;
+  overflow: hidden;
+}
+.bar i {
+  display: block; height: 100%;
+  border-radius: 3px;
+  background: var(--bar-other);
+  width: 0;
+  transition: width .7s cubic-bezier(.25,.8,.3,1);
+}
+.dist-row.mine .bar i { background: var(--blue); }
+.hook-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 6px 44px 10px 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+}
+.hook-text { flex: 1; font-size: 14px; line-height: 1.55; }
+.hook-text b { color: var(--blue); font-weight: 700; }
+.redo {
+  flex: none;
+  border: 1px solid var(--stroke);
+  background: none;
+  color: var(--fg-2);
+  font-family: inherit;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+/* answer panel (switches by tapped option) */
+.panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-right: 44px;
+  scrollbar-width: none;
+}
+.panel::-webkit-scrollbar { display: none; }
+.p-head { display: flex; align-items: baseline; gap: 8px; font-size: 14.5px; font-weight: 700; margin-bottom: 8px; }
+.p-head .k { color: var(--blue); flex: none; }
+.p-tag { flex: none; font-size: 10px; color: #fff; background: var(--blue); border-radius: 8px; padding: 1px 7px; }
+.p-why, .p-blind { font-size: 14px; line-height: 1.65; margin-bottom: 10px; }
+.p-why b { color: var(--blue); font-weight: 600; }
+.p-blind { color: var(--fg-2); }
+.p-blind b { color: #E8A33D; font-weight: 600; }
+.p-dims {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.p-dims-label { width: 100%; font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: 1px; }
+.dim {
+  font-size: 13px;
+  color: var(--blue);
+  background: var(--blue-dim);
+  border: 1px solid rgba(77, 159, 255, .3);
+  border-radius: 13px;
+  padding: 4px 11px;
+}
+
+/* right rail */
+.rail {
+  position: absolute;
+  right: 10px;
+  bottom: 86px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 3;
+}
+.rail button {
+  border: none; background: none;
+  font-family: inherit;
+  color: var(--fg);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 11px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+.rail svg { display: block; filter: drop-shadow(0 1px 3px rgba(0,0,0,.4)); }
+
+/* hint */
+.qs-hint {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+  padding-top: 12px;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+.a-in { animation: rise .45s ease both; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .a-in, .qs-hint { animation: none; }
+  .bar i { transition: none; }
+}
+
+/* end screen */
+.end-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 40px;
+  text-align: center;
+}
+.end-inner .big { font-size: 26px; font-weight: 700; }
+.end-inner p { font-size: 14px; color: var(--fg-2); line-height: 1.7; }
+.end-inner a { color: var(--blue); text-decoration: none; font-size: 14px; }
+
+/* toast */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(255, 255, 255, .92);
+  color: #121212;
+  font-size: 13.5px;
+  padding: 9px 18px;
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s, transform .25s;
+  white-space: nowrap;
+  z-index: 20;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.2a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zM8 5.6c-1.7 0-3.2.7-4.3 1.8l1.3 1.3A4.4 4.4 0 0 1 8 7.4c1.2 0 2.2.5 3 1.3l1.3-1.3A6 6 0 0 0 8 5.6zM8 2C5.4 2 3 3 1.2 4.8l1.3 1.3A7.9 7.9 0 0 1 8 3.8c2.1 0 4 .9 5.5 2.3l1.3-1.3A9.5 9.5 0 0 0 8 2z" transform="translate(0 -2)"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="currentColor"/><path d="M23 4v4c1-.2 1.6-1 1.6-2S24 4.2 23 4z" fill="currentColor" opacity=".4"/></svg>
+    </span>
+  </div>
+
+  <div class="topbar">
+    <button class="t" data-toast="演示版仅开放推荐流">关注</button>
+    <button class="t on">推荐</button>
+    <a class="list-link" href="index.html">列表版</a>
+  </div>
+
+  <div class="main">
+    <div class="deck" id="deck"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script id="cards-data" type="application/json">{"category":"买车决策","cards":[{"id":"q001","domain":"买车决策","type":"处境取舍","title":"30 岁前的第一台豪华车，奔驰 C 级还是宝马 3 系？","options":[{"key":"A","text":"奔驰 C 级","reason":"同级里奔驰的品牌感知最被大众认可，「宝马只能下山，奔驰能上树」；C260 用上后驱平台铝合金双叉臂，滤震表现其实被网络舆论严重低估。","blindspot":"1.5T 轻混的动力口碑争议和后期养护成本；以及你买的豪华感知里，有多少是给别人看的。","pct":34,"tiers":{"normal":40,"high":30,"super":24}},{"key":"B","text":"宝马 3 系","reason":"操控和转向精准度同级最好，还有高功率 2.0T 可选，是这个价位少有的「驾驶者之车」。","blindspot":"N20/B48 发动机漏油渗漏是通病，6-8 万公里后维护成本上升；操控的价值取决于路况——市区通勤根本用不出来。","pct":41,"tiers":{"normal":42,"high":41,"super":37}},{"key":"C","text":"这个价位不碰 BBA","reason":"30 万内的 BBA 意味着小排量加减配，同价位国产新能源配置碾压，省下的差价是普通人一年的薪水。","blindspot":"品牌带来的社交价值和保值率是真实存在的变量，它不刚性，但不为零。","pct":25,"tiers":{"normal":18,"high":29,"super":39}}],"stats":{"chosen":12384,"follow":3291},"dims":["调校哲学","为谁付费","品牌溢价"]},{"id":"q002","domain":"买车决策","type":"处境取舍","title":"奔驰 E300 和宝马 530 落地差价近 9 万，怎么选？","options":[{"key":"A","text":"加钱上 E300 豪华立标","reason":"商务接待气场拉满；新款 E300 的油门、转向、刹车相比老奔驰彻底改了，驾驶层面的短板补上了。","blindspot":"落地 46.5 对 37.5，差价 24%——按老司机的算法，这个差价已经不是「看喜欢」，是「看钱包」；轻混松油门的拖拽感依然明显。","pct":31,"tiers":{"normal":36,"high":28,"super":22}},{"key":"B","text":"530 尊享，省下 9 万","reason":"动力总成成熟，落地价打到 37.5 万；9 万差价够覆盖五年油费加保险。","blindspot":"在特定商务场景里，立标奔驰的气场是生产资料不是消费品——省下的钱可能在谈判桌上还回去。","pct":47,"tiers":{"normal":46,"high":49,"super":45}},{"key":"C","text":"都不选，这预算看新势力旗舰","reason":"40 万级新势力在智能化、舒适性配置上对 56E 是降维打击，冰箱彩电空悬激光雷达全都有。","blindspot":"商务场合的品牌认知度、油车长途的确定性、保值率，这三样新势力都还没证明自己。","pct":22,"tiers":{"normal":18,"high":23,"super":33}}],"stats":{"chosen":8721,"follow":2104},"dims":["差价占比","商务场景","品牌信仰"]},{"id":"q003","domain":"买车决策","type":"坑点扫描","title":"预算 30 万内，要不要硬上入门级 BBA？","options":[{"key":"A","text":"上，标本身就是价值","reason":"把 GLS 的标换成北汽，打骨折都没人买——品牌价值是真实的产品力，不是玄学；面子在很多行业就是功能。","blindspot":"入门级拿到的品牌价值是稀释过的：懂行的人一眼认得出 1.3T 和三缸，「标」在最需要它的人群面前反而失效。","pct":17,"tiers":{"normal":24,"high":13,"super":9}},{"key":"B","text":"不上，同价国产新能源顶配","reason":"30 万的 BBA 有空间小、排量小、内饰减配的器质性缺陷，被叫「50 分的车」；同价国产新能源的体验是另一个时代的。","blindspot":"新能源三年后的保值率和品牌沉淀依然是未知数；「配置碾压」里有多少是你真的会用的？","pct":43,"tiers":{"normal":40,"high":46,"super":45}},{"key":"C","text":"二线豪华捡漏","reason":"凯迪拉克 CT5、沃尔沃 S60 终端价比同级 BBA 便宜 6-7 万，产品力却在同一水平线——差价是一台车首付。","blindspot":"二线豪华的保值率更差，「捡漏价」在你卖车时会以同样的方式还给市场。","pct":22,"tiers":{"normal":20,"high":24,"super":21}},{"key":"D","text":"二手中高配 BBA","reason":"25 万能拿下 21 款 530 尊享——用入门级的钱买中高级的车，品牌和产品力都不妥协。","blindspot":"豪华车的养护成本不打折：全险贵 30%、必须 95 号油、过保后随便修一次大几千。","pct":18,"tiers":{"normal":16,"high":17,"super":25}}],"stats":{"chosen":15207,"follow":4188},"dims":["收入结构","面子是否生产资料","品牌稀释"]},{"id":"q004","domain":"买车决策","type":"处境取舍","title":"家庭唯一一辆车，SUV 还是轿车？","options":[{"key":"A","text":"SUV","reason":"带娃家庭的真实差距：抱娃上下车直立轻松、儿童座椅好装、后备箱能吞下推车和露营装备、烂路不磕底盘。","blindspot":"「空间大」是个错觉——SUV 大的是头部和载物的垂直空间，腿部空间反而常比同级轿车小；车身晃动大，晕车的家人每次都遭罪。","pct":48,"tiers":{"normal":54,"high":44,"super":38}},{"key":"B","text":"轿车","reason":"重心低高速稳不发飘、操控顺滑、风阻小油耗低，长途乘坐舒适度和驾驶质感全面占优。","blindspot":"二胎、露营、春节满载回老家——这些场景一年可能只有几次，但每一次都是硬需求，轿车在那几天会让你后悔。","pct":33,"tiers":{"normal":28,"high":37,"super":41}},{"key":"C","text":"不纠结品类，看具体车型","reason":"20 万级家用取向的 SUV 和轿车，性能差距远小于想象，日常根本触不到极限——剩下的是坐姿和外观偏好。","blindspot":"「都行」往往意味着你还没把自己的高频场景想清楚，这不是答案，是推迟回答。","pct":19,"tiers":{"normal":18,"high":19,"super":21}}],"stats":{"chosen":21456,"follow":5872},"dims":["垂直空间","高频通勤","低频硬需求"]},{"id":"q005","domain":"买车决策","type":"处境取舍","title":"2026 年了，18-23 万预算，油车还是电车？","options":[{"key":"A","text":"油车","reason":"东北冬天、没有家充桩、打算一台车开 10-15 年——三个条件占两个，靠谱油车依然是更稳的答案；而且车轻底盘好调，操控是物理规律的馈赠。","blindspot":"推荐油车的热门回答里，不少是品牌软文，看起来最「稳妥」的建议也可能是投放。","pct":27,"tiers":{"normal":31,"high":25,"super":19}},{"key":"B","text":"纯电","reason":"同价位电车的舒适性、智能化对油车是「全方位无死角」的碾压，使用成本只有油车的六分之一。","blindspot":"车重是被普遍忽略的变量：电池让车重增加，底盘要么颠要么晃——同价位电车的机械素质天花板更低，这是物理不是立场。","pct":45,"tiers":{"normal":42,"high":47,"super":51}},{"key":"C","text":"混动折中","reason":"可油可电，没桩不焦虑，有桩当电车开——过渡期最不会错的答案。","blindspot":"「不会错」的代价是两套系统的成本和重量都在你车上；折中方案往往两头的优点都打折。","pct":28,"tiers":{"normal":27,"high":28,"super":30}}],"stats":{"chosen":31892,"follow":8933},"dims":["充电条件","冬季气温","持有年限","软文识别"]},{"id":"q006","domain":"买车决策","type":"处境取舍","title":"人生第一辆车，新车还是二手练手？","options":[{"key":"A","text":"新车","reason":"「第一次买车一定要买新车，因为人性」——二手车出毛病你会怪自己没买新车，新车出毛病你会自适应；何况新手根本挑不出好二手。","blindspot":"新手期的剐蹭都刻在最贵的折旧上；你为「省心」付的溢价，其实是给自己判断力交的保险费。","pct":42,"tiers":{"normal":48,"high":38,"super":31}},{"key":"B","text":"二手油车练手","reason":"两万块的十年老丰田开两年还能卖一万——用一万块的成本练完技术，赶上置换补贴再换新，纠错成本最低。","blindspot":"「水深」是真的：事故车泡水车的鉴别能力普通人没有，省的钱可能一次大修就还回去；练手车的糟糕体验也可能让你误判自己不喜欢开车。","pct":37,"tiers":{"normal":32,"high":41,"super":46}},{"key":"C","text":"二手豪华/顶配捡漏","reason":"3 年车龄的顶配 MINI 比新车便宜十几万还省购置税——让第一任车主替你付掉最陡的折旧。","blindspot":"豪华车过保即刺客：保险贵 30%、配件零整比高，「捡漏价」后面挂着一张没人给你看的养护账单。","pct":21,"tiers":{"normal":20,"high":21,"super":23}}],"stats":{"chosen":18042,"follow":4521},"dims":["纠错成本","折旧曲线","省心溢价"]},{"id":"q007","domain":"买车决策","type":"处境取舍","title":"15 万级家用车，国产新能源还是合资油车？","options":[{"key":"A","text":"国产新能源","reason":"三电技术世界一流、智能化「甩合资几条街」，15 万的配置能打 30 万的合资——这是连商用车工程师都承认的事实。","blindspot":"长期可靠性和品牌存活率还没经过完整周期检验；你买的不只是车，还有这家公司五年后还在不在的概率。","pct":52,"tiers":{"normal":50,"high":54,"super":55}},{"key":"B","text":"合资油车","reason":"省心是被验证过的：三大件成熟、10 万级代步「颗粒捕捉器、内饰差」这些缺点不影响本质，省油省事过日子。","blindspot":"销量榜已经说明趋势：合资在靠打骨折硬撑——今天的「稳妥」可能是五年后的「诺基亚」。","pct":26,"tiers":{"normal":30,"high":24,"super":18}},{"key":"C","text":"合资新能源","reason":"铂智 7 这批车「中国定义、中国研发」，定价务实到 15.68 万起——合资的品控加新能源的体验，反转正在发生。","blindspot":"合资电车的智能化供应链依然慢半拍；「觉醒」是刚开始的故事，不是已完成的事实。","pct":22,"tiers":{"normal":20,"high":22,"super":27}}],"stats":{"chosen":14336,"follow":3705},"dims":["电动化进度","长期可靠性","品牌存活率"]},{"id":"q008","domain":"买车决策","type":"坑点扫描","title":"30 万落地想「一步到位」，最该警惕的是什么？","options":[{"key":"A","text":"「全能胜出」式横评软文","reason":"30 万是软文最密集的价位段：结构雷同的「5 款横评+单一车型全能胜出」批量生产，随手翻 10 篇攻略，6 篇是这个模板。","blindspot":"警惕软文不等于反着买——被投放的车不一定是差车，只是这篇内容不构成证据。","pct":38,"tiers":{"normal":30,"high":43,"super":52}},{"key":"B","text":"豪华品牌光环","reason":"30 万级的豪华纯电是「油改电+减配」重灾区，品牌溢价挤占的全是配置预算。","blindspot":"一刀切排除豪华品牌，会错过真在认真转型的车型——光环该打折，不该清零。","pct":24,"tiers":{"normal":26,"high":23,"super":19}},{"key":"C","text":"顶配冲动","reason":"47% 的车主后悔选错配置、年均多花 2800——「一步到位」的心态让人为一年用不上三次的功能付整车溢价。","blindspot":"有些配置确实不可后装（激光雷达、空悬）——砍配置砍错了，后悔同样是 47% 的一员。","pct":23,"tiers":{"normal":26,"high":21,"super":17}},{"key":"D","text":"「一步到位」这个念头本身","reason":"车市一年一迭代、家庭需求五年一变——「开十年不换」的承诺大多兑现不了，一步到位是幻觉。","blindspot":"对确实低频换车的家庭，追求耐用和冗余是理性——别把「反执念」变成新执念。","pct":15,"tiers":{"normal":18,"high":13,"super":12}}],"stats":{"chosen":9873,"follow":2966},"dims":["软文密度","信息可信度","需求迭代"]},{"id":"q009","domain":"买车决策","type":"处境取舍","title":"没有固定车位，家里第一辆车选混动还是纯电？","options":[{"key":"A","text":"混动/增程","reason":"可油可电没有里程焦虑，没桩就当省油的油车开——直觉上是无桩家庭的标准答案。","blindspot":"反直觉的坑：混动纯电续航短（实际一百多公里），你既然买了它就会想用电——结果是比纯电车主更频繁地找桩，「我朋友的混动每天都在充电」。","pct":40,"tiers":{"normal":47,"high":36,"super":28}},{"key":"B","text":"纯电","reason":"600km+ 续航把充电频次压到一周一次，快充十几分钟——没桩的人反而更该买续航长的纯电，把「补能」变成低频事件。","blindspot":"冬季续航打折、节假日高速排队、小区永远装不上桩的风险——低频事件撞上极端场景时最疼。","pct":38,"tiers":{"normal":32,"high":42,"super":51}},{"key":"C","text":"干脆纯油","reason":"无桩家庭最后的省心选项，加油五分钟，全国无死角。","blindspot":"混动当纯油开油耗也只有一半——2026 年选纯油的理由，只剩下更低的购置价。","pct":22,"tiers":{"normal":21,"high":22,"super":21}}],"stats":{"chosen":16754,"follow":5012},"dims":["充电便利度","年里程","补能频次"]},{"id":"q010","domain":"买车决策","type":"坑点扫描","title":"车贷利率降到 2.49%，全款还是贷款？","options":[{"key":"A","text":"全款，落袋为安","reason":"全款几乎没有套路，一个公式走天下：裸车价+购置税+保险+上牌，其他费用一概不出。","blindspot":"有返点的年代，贷款方案算完总账可能比全款便宜 1-3 万——拒绝贷款有时是在拒绝折扣。","pct":36,"tiers":{"normal":41,"high":33,"super":27}},{"key":"B","text":"贷款，把杠杆用起来","reason":"4S 店贷款有返点愿意让利，算上所有利息费用可能仍比全款便宜；通胀之下，未来的钱更毛。","blindspot":"「0 利息」不等于 0 成本：金融服务费 3000-5000、GPS 费 1500、强制全险、要不回来的续保押金——利息省的钱在费用表里等你。","pct":28,"tiers":{"normal":25,"high":30,"super":34}},{"key":"C","text":"先谈费用清单，再决定","reason":"利率是诱饵，费用表才是题眼——同样 2.49%，谈掉金融服务费和强制装潢的人和没谈的人，差出一万多。","blindspot":"费用能谈的前提是你愿意走出这家店——没有备选方案的谈判不叫谈判。","pct":36,"tiers":{"normal":34,"high":37,"super":39}}],"stats":{"chosen":11208,"follow":2871},"dims":["隐性费用","返点让利","资金成本"]},{"id":"q011","domain":"买车决策","type":"概念辨析","title":"2026 年了，还值得为沃尔沃的「安全人设」买单吗？","options":[{"key":"A","text":"值得，底蕴不是营销","reason":"1600MPa 硼钢、50 次 IIHS 顶级安全评级、笼式车身是它 1944 年首创——沃尔沃的安全哲学是「超越应试」，为标准没测到的场景做设计。","blindspot":"为「哲学」付的溢价很难被验证：你大概率一辈子用不上那次碰撞，却每天都在付品牌溢价。","pct":33,"tiers":{"normal":38,"high":30,"super":25}},{"key":"B","text":"不值，安全已被追平","reason":"「沃尔沃安全的新闻变少了」，因为它不再不可替代：头部车企被动安全趋同，凯迪拉克「相当接近」，新势力用料更狠。","blindspot":"追平的是硬件参数，追不平的是几十年真实事故数据喂出来的工程细节——纸面趋同不等于实战趋同。","pct":36,"tiers":{"normal":32,"high":39,"super":43}},{"key":"C","text":"看车型不看品牌","reason":"安全是具体车身结构+主动安全系统的组合，同一品牌不同平台差距不小——认车不认标才是安全观的成年礼。","blindspot":"普通消费者没有能力逐车型验证结构用料——「看车型」说起来专业，执行起来最后还是回到看品牌。","pct":31,"tiers":{"normal":30,"high":31,"super":32}}],"stats":{"chosen":7692,"follow":2255},"dims":["安全趋同","稀缺性定价","口碑滞后"]},{"id":"q012","domain":"买车决策","type":"坑点扫描","title":"加 2 万上高配，最该先砍哪类配置？","options":[{"key":"A","text":"座椅按摩","reason":"卖车老炮和多车车主的罕见共识：「座椅按摩是真的没用，毫无意义」——使用率不到 10% 的典型。","blindspot":"长途重度用户（每周高速 4 小时以上）是唯一的例外人群——共识对人群平均成立，对你不一定。","pct":33,"tiers":{"normal":30,"high":35,"super":38}},{"key":"B","text":"电子后视镜","reason":"初体验惊艳，然后是延迟、视觉习惯重建、坏了巨贵——「看着高级」是它唯一稳定兑现的功能。","blindspot":"雨雾雪等极端天气下它确实清晰——住在多雨城市的人砍它之前该再想一次。","pct":18,"tiers":{"normal":19,"high":18,"super":16}},{"key":"C","text":"自动启停","reason":"「嫌弃人数最多的配置」：默认开启、上车先关，省的油不够换电瓶——用户用脚投票最狠的一项。","blindspot":"它通常不是选装项而是标配捆绑——你嫌弃它也砍不掉它，把火力浪费在不可选的配置上是无效决策。","pct":30,"tiers":{"normal":34,"high":28,"super":22}},{"key":"D","text":"高阶智驾包","reason":"迭代最快的配置：今年的旗舰硬件明年就是旧款，软件还要订阅——买断制大概率买在高点。","blindspot":"激光雷达等硬件不可后装——智驾是唯一「今天鸡肋、明天可能真香」的选项，砍它砍的是期权。","pct":19,"tiers":{"normal":17,"high":19,"super":24}}],"stats":{"chosen":13567,"follow":3402},"dims":["使用频率","可否后装","不可替代性"]},{"id":"q013","domain":"买车决策","type":"处境取舍","title":"刚工作的年轻人，第一辆车的最优解是什么？","options":[{"key":"A","text":"咬牙上喜欢的车","reason":"千金难买心头好；按「38% 黄金分割线」（落地价 ≤ 1.3 倍家庭年可支配收入）量力而行，喜欢就不算冲动。","blindspot":"「喜欢」在你汽车认知升级后大概率会变——最高赞答主的原话：补课到一定程度，你最初那套选车标准会被自己推翻。","pct":22,"tiers":{"normal":27,"high":19,"super":14}},{"key":"B","text":"二手练手车","reason":"两万块老丰田开两年再卖，纠错成本压到最低——把「学会自己要什么」这门课的学费打到一折。","blindspot":"通勤刚需的人没有「练手期」的从容；二手车的挑选本身就需要你还没有的判断力。","pct":30,"tiers":{"normal":26,"high":33,"super":37}},{"key":"C","text":"10 万内新车","reason":"「现实中能全款买 10 万的车，已经超过很多人」——质保完整、账目干净，不背车贷不焦虑。","blindspot":"10 万内选择快速内卷，一年后同价位产品力可能明显更强——买早的折旧比二手车还狠。","pct":29,"tiers":{"normal":30,"high":29,"super":26}},{"key":"D","text":"先不买","reason":"大城市通勤买车往往更慢更贵，周末租车+打车的成本远低于养车——没有场景，车是负债不是资产。","blindspot":"「等需要再买」低估了车带来的活动半径扩张——有些需求是车创造的，不是车满足的。","pct":19,"tiers":{"normal":17,"high":19,"super":23}}],"stats":{"chosen":24310,"follow":7108},"dims":["认知学费","用车场景","现金流压力"]},{"id":"q014","domain":"买车决策","type":"坑点扫描","title":"二手电车比同价油车高一档配置，碰不碰？","options":[{"key":"A","text":"碰，折旧就是我的折扣","reason":"电车折旧快意味着接盘方性价比高，电池健康度（SOH）如今可以第三方检测，信息差在缩小。","blindspot":"SOH 是快照不是曲线：它告诉你电池现在还剩多少，不告诉你接下来衰减多快——而后者才决定你的用车成本。","pct":24,"tiers":{"normal":22,"high":25,"super":29}},{"key":"B","text":"绝不碰","reason":"「油车二手水很深，电车的二手水更深」——老司机的态度斩钉截铁：除非你是吃这口饭的内行，否则别碰。","blindspot":"一刀切放弃的是真实存在的错价机会；「水深」描述的是信息不对称，不是价值不存在。","pct":45,"tiers":{"normal":51,"high":41,"super":33}},{"key":"C","text":"只走官方认证/内行渠道","reason":"车况透明+电池质保可延续，才值得为二手电车的性价比冒险——渠道即护城河。","blindspot":"官方认证的溢价会吃掉相当一部分「性价比」，你买到的是打过折的折扣。","pct":31,"tiers":{"normal":27,"high":34,"super":38}}],"stats":{"chosen":8455,"follow":2019},"dims":["电池衰减曲线","信息不对称","渠道保障"]},{"id":"q015","domain":"买车决策","type":"处境取舍","title":"20-30 万预算，二手 BBA 还是新车国产？","options":[{"key":"A","text":"二手 BBA","reason":"25 万级拿下 21 款 530 尊享——机械素质、品牌背书、驾驶质感都是完整体，让上一任车主承担最陡的折旧。","blindspot":"隐藏账单全在后面：必须 95 号油、全险贵 30%、空悬单根 1 万+、48V 轻混模块维修 5000-20000——便宜的是入场券，不是会员费。","pct":29,"tiers":{"normal":33,"high":27,"super":21}},{"key":"B","text":"新车国产旗舰","reason":"同预算下配置、智能化、舒适性全面碾压，质保完整、没有前任留下的暗雷。","blindspot":"三年后的保值率是国产新能源最大的未知数——你省下的养护费，可能在残值上还回去。","pct":48,"tiers":{"normal":46,"high":50,"super":51}},{"key":"C","text":"二手非豪华合资","reason":"RAV4 这类车保值到「二手商两天赚 8 千」，可靠性和流通性双高，折旧曲线最平缓。","blindspot":"保值率高意味着你作为买方占不到便宜——「最稳」的选项通常也是错价最少的选项。","pct":23,"tiers":{"normal":21,"high":23,"super":28}}],"stats":{"chosen":10281,"follow":2643},"dims":["隐藏账单","保值率","养护成本"]},{"id":"q016","domain":"买车决策","type":"概念辨析","title":"「开宝马坐奔驰」这句话，2026 年还成立吗？","options":[{"key":"A","text":"成立，哲学没变","reason":"拆车实测：同一家供应商的同规格减震器，奔驰的原厂参数调软优先滤震，宝马调硬保留路感——硬件趋同，取舍排序没变。","blindspot":"「哲学不变」不等于「体验差距不变」——趋同的硬件让两家的差距缩到普通人盲测未必分得出。","pct":38,"tiers":{"normal":42,"high":36,"super":31}},{"key":"B","text":"过时了，产品在趋同","reason":"新 E300 的油门转向刹车「彻彻底底改了」，宝马的舒适性配置也在堆——两家都在往中间走。","blindspot":"趋同的是单一车型的调校，不是品牌的默认倾向——你在两家 4S 店试驾的第一分钟依然能感觉到谁是谁。","pct":33,"tiers":{"normal":30,"high":35,"super":38}},{"key":"C","text":"只在油车上成立","reason":"电动化把底盘逻辑重写了：新势力用空悬+CDC 直接「买」舒适，电机让操控民主化——油车时代的品牌标签在电车上失效。","blindspot":"底盘调校的 know-how 不会因为动力形式改变而清零——电车时代的第一批「开起来高级」的车，依然出自老牌车企的底盘团队。","pct":29,"tiers":{"normal":28,"high":29,"super":31}}],"stats":{"chosen":9146,"follow":2380},"dims":["取舍排序","硬件趋同","品牌性格"]},{"id":"q017","domain":"买车决策","type":"处境取舍","title":"40 万级豪华中型 SUV：GLC、X3 还是 Q5L？","options":[{"key":"A","text":"奔驰 GLC","reason":"内饰豪华氛围断层领先，品牌认可度最高，新款转向轻松、城市开着最省心。","blindspot":"车重比对手多两三百公斤：过弯载荷转移明显、更容易响胎——豪华感的物理代价由操控买单。","pct":39,"tiers":{"normal":45,"high":35,"super":29}},{"key":"B","text":"宝马 X3","reason":"底盘和车身控制同级最好，是三台里唯一「开起来不像 SUV」的——三台都开过的车主横评里的操控赢家。","blindspot":"素皮内饰和最弱的豪华氛围——你为底盘付的钱，坐在后排的家人一分钱都感知不到。","pct":34,"tiers":{"normal":30,"high":37,"super":42}},{"key":"C","text":"奥迪 Q5L","reason":"终端优惠最狠、性价比之选，新款内饰质感翻身，把上一代的廉价感短板补掉了。","blindspot":"品牌溢价和保值率在三家里垫底——买的时候占的便宜，卖的时候要还一部分。","pct":27,"tiers":{"normal":25,"high":28,"super":29}}],"stats":{"chosen":13890,"follow":3577},"dims":["氛围","底盘","价格","维度排序"]},{"id":"q018","domain":"买车决策","type":"概念辨析","title":"判断一辆车安不安全，最先看什么？","options":[{"key":"A","text":"碰撞测试成绩","reason":"IIHS、E-NCAP、中保研——标准化测试是唯一可横向对比的公开数据，及格线以下一票否决。","blindspot":"应试化是公开的秘密：针对测试工况优化的车，在测试没覆盖的碰撞角度上可能判若两车。","pct":30,"tiers":{"normal":35,"high":27,"super":22}},{"key":"B","text":"车身结构与用料","reason":"热成型钢比例、A/B 柱强度（沃尔沃用 1600MPa 硼钢，每平方厘米扛 15 吨）是安全的底子——结构是唯一不能事后弥补的。","blindspot":"普通消费者无从验证钢材数据，宣传口径和实车用料之间隔着一层你看不到的窗户纸。","pct":34,"tiers":{"normal":30,"high":37,"super":41}},{"key":"C","text":"主动安全配置","reason":"不撞上才是最好的安全：AEB 在真实场景里比车主更早预判风险——「它比我更谨慎，这车买的值」。","blindspot":"各家 AEB 实测差距巨大，配置表上的同名功能不是同一个东西；过度信任主动安全本身就是风险。","pct":24,"tiers":{"normal":22,"high":26,"super":27}},{"key":"D","text":"品牌安全口碑","reason":"几十年真实事故数据喂出来的工程积累，是参数表以外的护城河。","blindspot":"口碑滞后于产品——今天的口碑是十年前的车挣的，你买的是今天的车。","pct":12,"tiers":{"normal":13,"high":10,"super":10}}],"stats":{"chosen":11734,"follow":3820},"dims":["车身结构","主动安全","应试化"]},{"id":"q019","domain":"买车决策","type":"预测判断","title":"现在买车，值得为高阶智驾多花 2-3 万吗？","options":[{"key":"A","text":"值得，很快就是刚需","reason":"36 个传感器、120 米外识别横倒轮胎的激光雷达——高速夜间场景的安全冗余，出一次事就值回全部差价。","blindspot":"「刚需」的时间表被厂商话术系统性提前了；你为「很快」付的钱，享受到的可能是「三年后」的功能。","pct":27,"tiers":{"normal":29,"high":26,"super":24}},{"key":"B","text":"不值，迭代太快","reason":"今年的旗舰硬件明年就是旧款，软件走向订阅制——智驾是唯一「越等越便宜、越等越好」确定成立的配置。","blindspot":"等待策略的盲区：你等的三年里每一次高速长途，都在用自己的注意力支付本可以省下的疲劳。","pct":41,"tiers":{"normal":45,"high":39,"super":33}},{"key":"C","text":"只为硬件预埋买单","reason":"激光雷达等硬件不可后装、软件可以等降价——买硬件是买期权，买软件包是买在高点。","blindspot":"硬件预埋赌的是这家车企三年后还在维护这套硬件栈——预埋变「绝版」的先例已经不少。","pct":32,"tiers":{"normal":26,"high":35,"super":43}}],"stats":{"chosen":10493,"follow":3164},"dims":["高速长途占比","迭代速度","硬件预埋"]},{"id":"q020","domain":"买车决策","type":"立场地图","title":"思想实验：如果油和电都免费，你会开油车还是电车？","options":[{"key":"A","text":"油车","reason":"「如果车也不要钱，那我选油车，毕竟库里南还是香的」——机械质感、声浪、加油五分钟的自由，这些从来不是成本问题。","blindspot":"你怀念的可能不是油车，是油车时代的旗舰——同价位对比里，这份机械浪漫大多数人其实买不到。","pct":35,"tiers":{"normal":38,"high":33,"super":30}},{"key":"B","text":"电车","reason":"「同价位电车的舒适性远远大于油车，全方位无死角」——空调自由、性能过剩、静谧平顺，体验回不去了。","blindspot":"免费假设抹掉的恰恰是电车最大的真实优势（使用成本）——如果连成本都不算了你还选电车，说明你买的是体验，那就别再用「省钱」说服家人。","pct":44,"tiers":{"normal":41,"high":46,"super":49}},{"key":"C","text":"选择不变——我本来就没在算能源账","reason":"油电成本从来不是大多数人的真实决策变量，是用来说服自己和家人的修辞——这个思想实验只是让它现形。","blindspot":"对年里程 3 万公里以上的网约车司机和通勤重度用户，能源账是真金白银——「成本是修辞」是有边界的结论。","pct":21,"tiers":{"normal":21,"high":21,"super":21}}],"stats":{"chosen":19325,"follow":4466},"dims":["体验","身份认同","成本修辞"]}]}</script>
+<script>
+const CARDS = JSON.parse(document.getElementById('cards-data').textContent).cards;
+
+// MVP：作答只存内存，刷新/重新打开即全新状态
+const answers = {};
+
+const $ = (sel, el) => (el || document).querySelector(sel);
+const fmt = n => n >= 10000 ? (n / 10000).toFixed(1).replace(/\.0$/, '') + ' 万' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+document.querySelectorAll('.topbar [data-toast]').forEach(b =>
+  b.addEventListener('click', () => toast(b.dataset.toast)));
+
+function tierHook(o) {
+  const s = o.tiers.super, diff = s - o.pct;
+  if (diff < -3) return `但超高价值用户里，只有 <b>${s}%</b> 这么选`;
+  if (diff > 3) return `超高价值用户里，有 <b>${s}%</b> 和你站在一起`;
+  return `超高价值用户的选择，和大众几乎一致`;
+}
+
+function railHTML(c) {
+  return `
+  <div class="rail">
+    <button data-t="已私密保存，仅自己可见">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4.6L5 21V4.5a1 1 0 0 1 1-1z"/></svg>
+      ${fmt(Math.round(c.stats.follow * .6))}
+    </button>
+    <button data-t="评论区在完整版规划中">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5c-5 0-9 3.4-9 7.6 0 2.4 1.3 4.5 3.4 5.9L5.6 20.5l3.8-1.6c.8.2 1.7.3 2.6.3 5 0 9-3.4 9-7.6s-4-7.6-9-7.6z"/></svg>
+      ${fmt(Math.round(c.stats.chosen * .11))}
+    </button>
+    <button data-t="分享链接已复制（演示）">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5.5 20 12l-7 6.5v-4C8 14.5 5.5 16.5 4 19c0-5.5 3.5-9 9-9.5v-4z"/></svg>
+      分享
+    </button>
+  </div>`;
+}
+
+function metaHTML(c, i) {
+  return `
+  <div class="qs-meta">
+    <span>${esc(c.domain)} · ${c.type}</span>
+    <span class="n">${i + 1} / ${CARDS.length}</span>
+  </div>`;
+}
+
+function choosingHTML(c, i) {
+  return `
+  <div class="qs-inner">
+    ${metaHTML(c, i)}
+    <h2 class="qs-title">${esc(c.title)}</h2>
+    <div class="qs-opts">
+      ${c.options.map(o => `
+        <button class="q-opt" data-key="${o.key}"><span class="k">${o.key}</span><span>${esc(o.text)}</span></button>`).join('')}
+    </div>
+    <div class="qs-hint">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 7 4.5l4 4"/></svg>
+      做个判断，或上滑跳过
+    </div>
+  </div>
+  ${railHTML(c)}`;
+}
+
+function panelHTML(c, viewing, picked) {
+  const v = c.options.find(o => o.key === viewing);
+  return `
+    <div class="p-head">
+      <span class="k">${v.key}</span><span>${esc(v.text)}</span>
+      ${viewing === picked ? '<span class="p-tag">你的选择</span>' : ''}
+    </div>
+    <p class="p-why"><b>为什么有人选它：</b>${esc(v.reason)}</p>
+    <p class="p-blind"><b>它忽略了：</b>${esc(v.blindspot)}</p>
+    <div class="p-dims">
+      <span class="p-dims-label">核心维度</span>
+      ${c.dims.map(t => `<span class="dim">${esc(t)}</span>`).join('')}
+    </div>`;
+}
+
+function answeredHTML(c, i, picked) {
+  const mine = c.options.find(o => o.key === picked);
+  return `
+  <div class="qs-inner">
+    ${metaHTML(c, i)}
+    <div class="qs-title-sm a-in">${esc(c.title)}</div>
+    <div class="dist">
+      ${c.options.map((o, idx) => `
+        <div class="dist-row a-in ${o.key === picked ? 'mine' : ''} ${o.key === picked ? 'viewing' : ''}" data-key="${o.key}" style="animation-delay:${.06 * idx}s">
+          <div class="dist-top">
+            <span class="k">${o.key}</span><span>${esc(o.text)}</span>
+            ${o.key === picked ? '<span class="mine-chip">你的选择</span>' : ''}
+            <span class="pct">${o.pct}%</span>
+          </div>
+          <div class="bar"><i data-w="${o.pct}"></i></div>
+        </div>`).join('')}
+    </div>
+    <div class="hook-row a-in" style="animation-delay:.4s">
+      <span class="hook-text">${tierHook(mine)}</span>
+      <button class="redo">↺ 重选</button>
+    </div>
+    <div class="panel a-in" style="animation-delay:.55s">${panelHTML(c, picked, picked)}</div>
+    <div class="qs-hint">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 7 4.5l4 4"/></svg>
+      点其他选项看它的理由 · 上滑看下一题
+    </div>
+  </div>
+  ${railHTML(c)}`;
+}
+
+function bindSection(sec, c, i) {
+  sec.querySelectorAll('.q-opt').forEach(b =>
+    b.addEventListener('click', () => {
+      answers[c.id] = b.dataset.key;
+      sec.innerHTML = answeredHTML(c, i, b.dataset.key);
+      bindSection(sec, c, i);
+      $('#end-count').textContent = Object.keys(answers).length;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        sec.querySelectorAll('.bar i').forEach(el => { el.style.width = el.dataset.w + '%'; });
+      }));
+    }));
+  // tap a distribution row to read that option's reasoning
+  sec.querySelectorAll('.dist-row').forEach(row =>
+    row.addEventListener('click', () => {
+      sec.querySelectorAll('.dist-row').forEach(r => r.classList.toggle('viewing', r === row));
+      $('.panel', sec).innerHTML = panelHTML(c, row.dataset.key, answers[c.id]);
+    }));
+  const redo = $('.redo', sec);
+  if (redo) redo.addEventListener('click', () => {
+    delete answers[c.id];
+    sec.innerHTML = choosingHTML(c, i);
+    bindSection(sec, c, i);
+    const ec = $('#end-count');
+    if (ec) ec.textContent = Object.keys(answers).length;
+  });
+  sec.querySelectorAll('.rail button').forEach(b =>
+    b.addEventListener('click', () => toast(b.dataset.t)));
+}
+
+const deck = $('#deck');
+CARDS.forEach((c, i) => {
+  const sec = document.createElement('section');
+  sec.className = 'qs';
+  sec.innerHTML = choosingHTML(c, i);
+  deck.appendChild(sec);
+  bindSection(sec, c, i);
+});
+
+// end screen
+const end = document.createElement('section');
+end.className = 'qs';
+end.innerHTML = `
+  <div class="end-inner">
+    <div class="big">今天的判断力训练完成</div>
+    <p>你一共回答了 <span id="end-count">0</span> 道题<br>选择分布与参与人数均为演示数据<br>刷新页面可重新开始</p>
+    <a href="index.html">回到列表版 →</a>
+  </div>`;
+deck.appendChild(end);
+</script>
+</body>
+</html>
