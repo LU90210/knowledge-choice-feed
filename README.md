@@ -1,19 +1,54 @@
 # Knowledge Choice Feed
 
-MVP 演示（买车决策 20 题，无需安装，直接打开）：
+刷着玩的知识选择题产品。真实问答数据蒸馏成决策题卡，用户先选择、再看分布和理由。当前原型做的是买车决策垂类，20 题，纯静态页面，无需安装。
+
+## 在线演示
+
+审阅版（冻结待评审，根目录 `mvp/`）：
 
 - [列表版](https://lu90210.github.io/knowledge-choice-feed/mvp/index.html) —— Feed → 详情 → 单页揭示
 - [上下滑版](https://lu90210.github.io/knowledge-choice-feed/mvp/swipe.html) —— 抖音式一屏一题
 
-需求分析主文档：
+开发版（`v2/` 文件夹，功能继续长，不影响审阅版）：
 
-- [knowledge-choice-feed-requirements-analysis.md](knowledge-choice-feed-requirements-analysis.md)
+- [v2 列表版](https://lu90210.github.io/knowledge-choice-feed/v2/mvp/index.html) —— 审阅版之上加社交层五个功能
 
-专项分析：
+## 目前实现了什么
 
+对照[需求分析](knowledge-choice-feed-requirements-analysis.md)的十个大功能。
+
+审阅版覆盖三个半：
+
+- 题卡 Feed（功能二）：20 张买车决策题卡，数据经官方接口拉取后蒸馏，人工定稿
+- 先选择后揭示（功能三）：必须先站队，才能看到分布、逐选项理由和「原来如此」
+- 选项分布与认知印证（功能四）：作答后展示选项分布，带用户分层的雏形
+
+v2 开发版再加五个，只进列表版：
+
+- 高价值用户分层（功能五）：分布条按用户档位拆开，每题另有两三位「高手怎么选」样本
+- 评论区分层（功能六）：平台答案与用户评论分开呈现，评论标同维度/新维度类型和「选 X」立场
+- 保存、分享与判断资产（功能七）：私密保存、存入画像（附一句判断理由）、图文分享卡、「我的」页
+- 关注体系（功能八）：关注问题后，「关注」tab 变成更新流（答案更新、热评、分布变化），特别关注置顶
+- 主题讨论（功能九）：「专题」tab 轻量发帖
+
+## 还缺什么
+
+- 功能一（题卡质量 SOP）只走通了一遍手工管线，还没固化成可复用的编辑标准和工具
+- 功能十（内容生产与审核后台）没做
+- 上下滑版停在审阅版形态，v2 五个功能一个没进
+- 没有后端：评论和发帖是会话态，刷新即失；作答本来就不落盘，为的是演示可重复
+- v2 社交层的评论、高手样本、关注更新是生成的演示数据，界面上已标注「示意」
+- 高价值用户只有示意标签，等级规则没定
+- 分享止于下载图片，没有真实分享链路
+- 只有买车决策一个垂类，全品类扩展没开始
+
+## 文档
+
+- [需求分析主文档](knowledge-choice-feed-requirements-analysis.md)
 - [竞品分析](竞品分析/README.md)
 
-构建记录：
+## 构建记录
 
 - [我是如何做出的（叙事页）](https://lu90210.github.io/knowledge-choice-feed/%E6%9E%84%E5%BB%BA%E8%AE%B0%E5%BD%95/how-i-built-knowledge-choice-feed.html)
 - [构建记录目录（逐次迭代 md）](构建记录/README.md)
+- v2 一线的活记录在 [v2/构建记录](v2/构建记录/README.md)
