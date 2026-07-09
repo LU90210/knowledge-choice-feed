@@ -749,6 +749,106 @@
 
     <section class="section">
       <div class="section-number">10</div>
+      <h2>MVP：真实数据管线与知乎风演示</h2>
+
+      <article class="step">
+        <div class="step-index">28</div>
+        <div>
+          <div class="tag">MVP 启动</div>
+          <p class="prompt"><span>我的指令</span> 我现在要做 MVP，数据来源：developer.zhihu.com，知乎 API，你不用管合规商用啥的。先就搞一个类别的，抽出 15-30 题左右。做个简单演示界面，长得像手机端知乎，但 html 形式。</p>
+          <p class="did"><strong>它做了什么：</strong>探明知乎数据开放平台的接口（知乎搜索、热榜，Bearer 鉴权），实测打通后规划了三步：拉数据、蒸馏题卡、做演示页。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">29</div>
+        <div>
+          <div class="tag">接口边界</div>
+          <p class="prompt"><span>我的指令</span> 你只用这个 api 里的知乎搜索或知乎热榜就行，我只要知乎内容。（Access Secret 已私下提供）</p>
+          <p class="did"><strong>它做了什么：</strong>管线锁定两个接口；密钥只走环境变量，不写进任何落盘文件——仓库是公开的。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">30</div>
+        <div>
+          <div class="tag">题材切换</div>
+          <p class="prompt"><span>我的指令</span> 算了，你别弄 AI 前沿技术了，你换成买什么车吧，比如奔驰还是宝马，SUV 还是轿车啥的。</p>
+          <p class="did"><strong>它做了什么：</strong>12 个买车子题抓回 120 条真实内容，按六字段 SOP 蒸馏出 20 张题卡，53 条来源全部核对自 API 原始返回。换完题材才发现买车的判断冲突密度远高于 AI 话题：高赞互怼就是题卡的原材料。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">31</div>
+        <div>
+          <div class="tag">去知乎化</div>
+          <p class="prompt"><span>我的指令</span> 我这个 MVP 不需要展示跟知乎有关的任何东西。主页只需要关注和推荐。多少万人已选，是瞎编的，还是找的知乎的信息？我除了知乎的内容，不需要跟知乎有任何关系。</p>
+          <p class="did"><strong>它做了什么：</strong>承认参与数字是演示合成并在页脚标明；清除全部知乎品牌元素、来源展示和 vote 引用。沉淀成规则：数据源是管线上游，不是产品脸面。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">32</div>
+        <div>
+          <div class="tag">交互实验</div>
+          <p class="prompt"><span>我的指令</span> 你觉得有什么更好的答案展现，或者用户交互方式？我感觉这个太老登了。</p>
+          <p class="did"><strong>它做了什么：</strong>把揭示改成 4 拍分步叙事流：站队数字、你的盲区、对面最强论点、金句收尾，点按推进。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">33</div>
+        <div>
+          <div class="tag">回滚与分岔</div>
+          <p class="prompt"><span>我的指令</span> 现在我要其他的表现形式，类似抖音的界面，可以上下滑，所有内容呈现在一个屏幕中，你另起一个版本。你现在的表现形式其实还不如第一个版本，返回原样。两个版本都保存下来。还有，MVP 阶段不需要保存我选过的内容，保证我每次打开都刷新。</p>
+          <p class="did"><strong>它做了什么：</strong>回滚 4 拍恢复第一版；新增暗色沉浸的上下滑版（一屏一题、滑动切题、同屏揭示）；两版删掉持久化。教训：情绪曲线设计对内容消费成立，对查看反馈不成立——选完想马上看到全貌。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">11</div>
+      <h2>题卡字段的生死与规矩补课</h2>
+
+      <article class="step">
+        <div class="step-index">34</div>
+        <div>
+          <div class="tag">交互补齐</div>
+          <p class="prompt"><span>我的指令</span> 你这个抖音版，只能展示一个答案啊，我选了 B 只有 B，选完了之后再点 A，至少能看到 A 的答案吧？两版都可以加一个取消选择的选项。包括你先回答一下这个原来如此功能到底是啥意思？</p>
+          <p class="did"><strong>它做了什么：</strong>滑版分布行变成可点的，点哪个选项看哪个的理由；两版都加了「重新选择」。做选择的产品里，看对面的理由是核心闭环的一半，不是增强功能。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">35</div>
+        <div>
+          <div class="tag">追问到底</div>
+          <p class="prompt"><span>我的指令</span> 所以这个原来如此到底有什么用？我没看懂。而且你是怎么 prompt 去输出这个原来如此的？</p>
+          <p class="did"><strong>它做了什么：</strong>承认没有跑在管线里的 prompt，这批题卡是读完原文手工蒸馏的；把隐式写法显式化成可复用的生产 prompt。更重要的信号是：设计者两次看不懂一个字段，说明这个字段没兑现价值。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">36</div>
+        <div>
+          <div class="tag">字段裁决</div>
+          <p class="prompt"><span>我的指令</span> 那你就直接别弄什么原来如此了，搞成核心维度：几个词。就行。</p>
+          <p class="did"><strong>它做了什么：</strong>「原来如此」下线，换成「核心维度」——每题 2-4 个名词短语，指出这道题真正在比什么（如：充电便利度 / 年里程 / 补能频次）。从要求用户读完，变成允许用户扫过；词组还能标签化、按维度聚合检索。</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="step-index">37</div>
+        <div>
+          <div class="tag">规矩问责</div>
+          <p class="prompt"><span>我的指令</span> 你到底看没看啊，构建记录/README.md？</p>
+          <p class="did"><strong>它做了什么：</strong>补课：当日记录改成 README 规定的六段式结构，这份 HTML 补上第 28-37 步，README 当前记录补条目，推送 GitHub。规矩写在仓库里就是给 agent 看的，跳过一次就该被抓。</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-number">12</div>
       <h2>如果你也想用大白话 build 一个产品</h2>
       <div class="principles">
         <div class="principle">
@@ -779,6 +879,8 @@
     </section>
 
     <div class="links">
+      <a href="../mvp/index.html">MVP 列表版演示</a>
+      <a href="../mvp/swipe.html">MVP 上下滑版演示</a>
       <a href="../knowledge-choice-feed-requirements-analysis.md">需求分析</a>
       <a href="../竞品分析/README.md">竞品分析</a>
       <a href="2026-07-08-首轮产品定义与结构收敛.md">构建记录 Markdown</a>
